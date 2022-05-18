@@ -4,7 +4,7 @@
 
 #ifndef CHAIN_GUI_CHAINGUI_H
 #define CHAIN_GUI_CHAINGUI_H
-
+#include "CGWindowBackend.h"
 
 class ChainGui {
 

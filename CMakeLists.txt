@@ -58,6 +58,7 @@ set(IMGUI 0)
 set(GLEW 0)
 set(GLAD 0)
 
+
 IF (IOS)
     set(SDL 1)
     set(GLFW 0)
@@ -73,6 +74,10 @@ ENDIF ()
 
 add_definitions(-D_AFXDLL)
 set(CMAKE_MFC_FLAG 1)
+
+IF(SDL)
+    add_definitions(-DSDL_BACKEND)
+ENDIF()
 
 # cd build
 # cmake .. -G "MinGW Makefiles" -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DCMAKE_CXX_FLAGS="-static"

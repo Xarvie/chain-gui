@@ -6,7 +6,8 @@
 #define CHAIN_GUI_CGWINDOWBACKENDSDL_H
 #include "CGWindowBackendAPI.h"
 #include <string>
-
+#include "SDL.h"
+#include "SDL_syswm.h"
 class CGWindowBackendSDL : public CGWindowBackendAPI{
 public:
     void init() override;

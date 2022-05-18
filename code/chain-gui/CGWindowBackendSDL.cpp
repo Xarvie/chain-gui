@@ -4,7 +4,7 @@
 
 #include <string>
 #include "CGWindowBackendSDL.h"
-#include "SDLHead.h"
+
 CGWindowBackend* windowMgr = new CGWindowBackend;
 
 void CGWindowBackendSDL::init() {
@@ -121,14 +121,14 @@ void CGWindowBackendSDL::pollEvent(void * event) {
             break;
         }
         case SDL_WINDOWEVENT:  {
-                switch (ev.window.event)  {
-                    case SDL_WINDOWEVENT_SIZE_CHANGED:  {
-                        int width = ev.window.data1;
-                        int height = ev.window.data2;
-                        evWindowResize(width, height);
+            switch (ev.window.event)  {
+                case SDL_WINDOWEVENT_SIZE_CHANGED:  {
+                    int width = ev.window.data1;
+                    int height = ev.window.data2;
+                    evWindowResize(width, height);
 
-                        break;
-                    }
+                    break;
+                }
             }
             break;
         }
