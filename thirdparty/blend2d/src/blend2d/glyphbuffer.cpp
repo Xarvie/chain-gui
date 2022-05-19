@@ -1,43 +1,26 @@
-// Blend2D - 2D Vector Graphics Powered by a JIT Compiler
+// This file is part of Blend2D project <https://blend2d.com>
 //
-//  * Official Blend2D Home Page: https://blend2d.com
-//  * Official Github Repository: https://github.com/blend2d/blend2d
-//
-// Copyright (c) 2017-2020 The Blend2D Authors
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would be
-//    appreciated but is not required.
-// 2. Altered source versions must be plainly marked as such, and must not be
-//    misrepresented as being the original software.
-// 3. This notice may not be removed or altered from any source distribution.
+// See blend2d.h or LICENSE.md for license and copyright information
+// SPDX-License-Identifier: Zlib
 
-#include "./api-build_p.h"
-#include "./array_p.h"
-#include "./font_p.h"
-#include "./glyphbuffer_p.h"
-#include "./runtime_p.h"
-#include "./string_p.h"
-#include "./support_p.h"
-#include "./unicode_p.h"
+#include "api-build_p.h"
+#include "array_p.h"
+#include "font_p.h"
+#include "glyphbuffer_p.h"
+#include "runtime_p.h"
+#include "string_p.h"
+#include "unicode_p.h"
+#include "support/intops_p.h"
+#include "support/ptrops_p.h"
+#include "support/stringops_p.h"
 
-// ============================================================================
-// [BLGlyphBuffer - Internals]
-// ============================================================================
+// BLGlyphBuffer - Internals
+// =========================
 
 static const constexpr BLInternalGlyphBufferImpl blGlyphBufferInternalImplNone {};
 
 static BL_INLINE BLResult blGlyphBufferEnsureData(BLGlyphBufferCore* self, BLInternalGlyphBufferImpl** impl) noexcept {
-  *impl = blInternalCast(self->impl);
+  *impl = blGlyphBufferGetImpl(self);
   if (*impl != &blGlyphBufferInternalImplNone)
     return BL_SUCCESS;
 
@@ -49,9 +32,8 @@ static BL_INLINE BLResult blGlyphBufferEnsureData(BLGlyphBufferCore* self, BLInt
   return BL_SUCCESS;
 }
 
-// ============================================================================
-// [BLGlyphBuffer - Private API]
-// ============================================================================
+// BLGlyphBuffer - Private API
+// ===========================
 
 BLResult BLInternalGlyphBufferImpl::ensureBuffer(size_t bufferId, size_t copySize, size_t minCapacity) noexcept {
   size_t oldCapacity = capacity[bufferId];
@@ -64,10 +46,10 @@ BLResult BLInternalGlyphBufferImpl::ensureBuffer(size_t bufferId, size_t copySiz
   if (newCapacity < BL_GLYPH_BUFFER_INITIAL_CAPACITY)
     newCapacity = BL_GLYPH_BUFFER_INITIAL_CAPACITY;
   else if (newCapacity < SIZE_MAX - 256)
-    newCapacity = blAlignUp(minCapacity, 64);
+    newCapacity = BLIntOps::alignUp(minCapacity, 64);
 
   BLOverflowFlag of = 0;
-  size_t dataSize = blMulOverflow<size_t>(newCapacity, BL_GLYPH_BUFFER_ANY_ITEM_SIZE, &of);
+  size_t dataSize = BLIntOps::mulOverflow<size_t>(newCapacity, BL_GLYPH_BUFFER_ANY_ITEM_SIZE, &of);
 
   if (BL_UNLIKELY(of))
     return BL_ERROR_OUT_OF_MEMORY;
@@ -110,7 +92,7 @@ static BL_INLINE BLResult blInternalGlyphBufferData_setGlyphIds(BLInternalGlyphB
   for (size_t i = 0; i < size; i++) {
     glyphData[i] = uint32_t(src[0]);
     infoData[i] = blGlyphInfoFromCluster(i);
-    src = blOffsetPtr(src, advance);
+    src = BLPtrOps::offset(src, advance);
   }
 
   d->size = size;
@@ -168,24 +150,23 @@ static BL_INLINE BLResult blInternalGlyphBufferData_setUnicodeText(BLInternalGly
   return BL_SUCCESS;
 }
 
-// ============================================================================
-// [BLGlyphBuffer - Init / Destroy]
-// ============================================================================
+// BLGlyphBuffer - Init & Destroy
+// ==============================
 
-BLResult blGlyphBufferInit(BLGlyphBufferCore* self) noexcept {
+BL_API_IMPL BLResult blGlyphBufferInit(BLGlyphBufferCore* self) noexcept {
   self->impl = const_cast<BLInternalGlyphBufferImpl*>(&blGlyphBufferInternalImplNone);
   return BL_SUCCESS;
 }
 
-BLResult blGlyphBufferInitMove(BLGlyphBufferCore* self, BLGlyphBufferCore* other) noexcept {
-  BLInternalGlyphBufferImpl* impl = blInternalCast(other->impl);
+BL_API_IMPL BLResult blGlyphBufferInitMove(BLGlyphBufferCore* self, BLGlyphBufferCore* other) noexcept {
+  BLInternalGlyphBufferImpl* impl = blGlyphBufferGetImpl(other);
   other->impl = const_cast<BLInternalGlyphBufferImpl*>(&blGlyphBufferInternalImplNone);
   self->impl = impl;
   return BL_SUCCESS;
 }
 
-BLResult blGlyphBufferDestroy(BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* impl = blInternalCast(self->impl);
+BL_API_IMPL BLResult blGlyphBufferDestroy(BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* impl = blGlyphBufferGetImpl(self);
   self->impl = nullptr;
 
   if (impl != &blGlyphBufferInternalImplNone)
@@ -193,12 +174,11 @@ BLResult blGlyphBufferDestroy(BLGlyphBufferCore* self) noexcept {
   return BL_SUCCESS;
 }
 
-// ============================================================================
-// [BLGlyphBuffer - Reset]
-// ============================================================================
+// BLGlyphBuffer - Reset
+// =====================
 
-BLResult blGlyphBufferReset(BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* impl = blInternalCast(self->impl);
+BL_API_IMPL BLResult blGlyphBufferReset(BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* impl = blGlyphBufferGetImpl(self);
   self->impl = const_cast<BLInternalGlyphBufferImpl*>(&blGlyphBufferInternalImplNone);
 
   if (impl != &blGlyphBufferInternalImplNone)
@@ -206,12 +186,11 @@ BLResult blGlyphBufferReset(BLGlyphBufferCore* self) noexcept {
   return BL_SUCCESS;
 }
 
-// ============================================================================
-// [BLGlyphBuffer - Content]
-// ============================================================================
+// BLGlyphBuffer - Content
+// =======================
 
-BLResult blGlyphBufferClear(BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* selfI = blInternalCast(self->impl);
+BL_API_IMPL BLResult blGlyphBufferClear(BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* selfI = blGlyphBufferGetImpl(self);
 
   // Would be true if the glyph-buffer is built-in 'none' instance or the data
   // is allocated, but empty.
@@ -222,38 +201,38 @@ BLResult blGlyphBufferClear(BLGlyphBufferCore* self) noexcept {
   return BL_SUCCESS;
 }
 
-size_t blGlyphBufferGetSize(const BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* selfI = blInternalCast(self->impl);
+BL_API_IMPL size_t blGlyphBufferGetSize(const BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* selfI = blGlyphBufferGetImpl(self);
   return selfI->size;
 }
 
-uint32_t blGlyphBufferGetFlags(const BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* selfI = blInternalCast(self->impl);
+BL_API_IMPL uint32_t blGlyphBufferGetFlags(const BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* selfI = blGlyphBufferGetImpl(self);
   return selfI->flags;
 }
 
-const BLGlyphRun* blGlyphBufferGetGlyphRun(const BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* selfI = blInternalCast(self->impl);
+BL_API_IMPL const BLGlyphRun* blGlyphBufferGetGlyphRun(const BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* selfI = blGlyphBufferGetImpl(self);
   return &selfI->glyphRun;
 }
 
-const uint32_t* blGlyphBufferGetContent(const BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* selfI = blInternalCast(self->impl);
+BL_API_IMPL const uint32_t* blGlyphBufferGetContent(const BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* selfI = blGlyphBufferGetImpl(self);
   return selfI->content;
 }
 
-const BLGlyphInfo* blGlyphBufferGetInfoData(const BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* selfI = blInternalCast(self->impl);
+BL_API_IMPL const BLGlyphInfo* blGlyphBufferGetInfoData(const BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* selfI = blGlyphBufferGetImpl(self);
   return selfI->infoData;
 }
 
-const BLGlyphPlacement* blGlyphBufferGetPlacementData(const BLGlyphBufferCore* self) noexcept {
-  BLInternalGlyphBufferImpl* selfI = blInternalCast(self->impl);
+BL_API_IMPL const BLGlyphPlacement* blGlyphBufferGetPlacementData(const BLGlyphBufferCore* self) noexcept {
+  BLInternalGlyphBufferImpl* selfI = blGlyphBufferGetImpl(self);
   return selfI->placementData;
 }
 
-BLResult blGlyphBufferSetText(BLGlyphBufferCore* self, const void* textData, size_t size, uint32_t encoding) noexcept {
-  if (BL_UNLIKELY(encoding >= BL_TEXT_ENCODING_COUNT))
+BL_API_IMPL BLResult blGlyphBufferSetText(BLGlyphBufferCore* self, const void* textData, size_t size, BLTextEncoding encoding) noexcept {
+  if (BL_UNLIKELY(uint32_t(encoding) > BL_TEXT_ENCODING_MAX_VALUE))
     return blTraceError(BL_ERROR_INVALID_VALUE);
 
   BLInternalGlyphBufferImpl* d;
@@ -294,7 +273,7 @@ BLResult blGlyphBufferSetText(BLGlyphBufferCore* self, const void* textData, siz
   }
 }
 
-BLResult blGlyphBufferSetGlyphs(BLGlyphBufferCore* self, const uint32_t* glyphData, size_t size) noexcept {
+BL_API_IMPL BLResult blGlyphBufferSetGlyphs(BLGlyphBufferCore* self, const uint32_t* glyphData, size_t size) noexcept {
   if (BL_UNLIKELY(sizeof(size_t) > 4 && size > 0xFFFFFFFFu))
     return blTraceError(BL_ERROR_DATA_TOO_LARGE);
 
@@ -306,7 +285,7 @@ BLResult blGlyphBufferSetGlyphs(BLGlyphBufferCore* self, const uint32_t* glyphDa
   return blInternalGlyphBufferData_setGlyphIds(d, glyphData, size, intptr_t(sizeof(uint16_t)));
 }
 
-BLResult blGlyphBufferSetGlyphsFromStruct(BLGlyphBufferCore* self, const void* glyphData, size_t size, size_t glyphIdSize, intptr_t glyphIdAdvance) noexcept {
+BL_API_IMPL BLResult blGlyphBufferSetGlyphsFromStruct(BLGlyphBufferCore* self, const void* glyphData, size_t size, size_t glyphIdSize, intptr_t glyphIdAdvance) noexcept {
   if (BL_UNLIKELY(glyphIdSize != 2 && glyphIdSize != 4))
     return blTraceError(BL_ERROR_INVALID_VALUE);
 
