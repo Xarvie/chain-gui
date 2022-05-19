@@ -1,5 +1,5 @@
 # chain-GUI
-
+### 编译:
 ``` sh
 cd ./chain-gui
 mkdir build
@@ -10,14 +10,15 @@ cmake ..
 ### TODO:   
 - 设备支持：
   - 基础事件 <font color="#dd0000">40%</font> 
-    - SDL后端 <font color="#dd0000">40%</font>
+    - SDL后端 <font color="#dd0000">70%</font>
     - 自定义后端 <font color="#dd0000">0%</font>
   - GPU硬渲染 <font color="#dd0000">0%</font>
   - CPU软渲染 <font color="#dd0000">✓</font>
 - 布局器  <font color="#dd0000">0%</font>
-  - 固定布局  <font color="#dd0000">0%</font>
+  - 固定布局  <font color="#dd0000">30%</font>
   - 比例布局 <font color="#dd0000">0%</font>
   - 自动布局 <font color="#dd0000">0%</font>
+- 窗口 <font color="#dd0000">30%</font>
 - 按钮 <font color="#dd0000">0%</font>
 - 标签 <font color="#dd0000">0%</font>
 - 图片框 <font color="#dd0000">0%</font>
