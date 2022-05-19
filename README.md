@@ -52,18 +52,18 @@ cmake ..
       - alt + 左右 光标回溯 <font color="#dd0000">0%</font> 
       - ...
     - 触摸屏幕支持 <font color="#dd0000">0%</font> 
-        - 选取区域与光标渲染 <font color="#dd0000">0%</font> 
+    - 选取区域与光标渲染 <font color="#dd0000">0%</font> 
     - 手柄摇杆支持 <font color="#dd0000">0%</font> 
-      - 多光标选取器(Beta计划) <font color="#dd0000">0%</font> 
-      - ctrl+shift+alt+上下方向 多选 <font color="#dd0000">0%</font> 
-      - 方向键 跳字 <font color="#dd0000">0%</font> 
-      - alt 跳词 <font color="#dd0000">0%</font> 
-      - insert 插入/替换模式切换 <font color="#dd0000">0%</font> 
-      - home 跳转行首 <font color="#dd0000">0%</font> 
-      - backspace/delete 向前/向后删除 <font color="#dd0000">0%</font> 
-      - PgUp/PgDn 向上/向下翻页 <font color="#dd0000">0%</font> 
-      - shift + 方向键 选取 <font color="#dd0000">0%</font> 
-      - alt + 左右 光标回溯 <font color="#dd0000">0%</font> 
+    - 多光标选取器(Beta计划) <font color="#dd0000">0%</font> 
+    - ctrl+shift+alt+上下方向 多选 <font color="#dd0000">0%</font> 
+    - 方向键 跳字 <font color="#dd0000">0%</font> 
+    - alt 跳词 <font color="#dd0000">0%</font> 
+    - insert 插入/替换模式切换 <font color="#dd0000">0%</font> 
+    - home 跳转行首 <font color="#dd0000">0%</font> 
+    - backspace/delete 向前/向后删除 <font color="#dd0000">0%</font> 
+    - PgUp/PgDn 向上/向下翻页 <font color="#dd0000">0%</font> 
+    - shift + 方向键 选取 <font color="#dd0000">0%</font> 
+    - alt + 左右 光标回溯 <font color="#dd0000">0%</font> 
       - ...
   - 编辑器(edit)
     - 跳字 <font color="#dd0000">0%</font> 
