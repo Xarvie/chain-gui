@@ -5,8 +5,6 @@
 #include <string>
 #include "CGWindowBackendSDL.h"
 
-CGWindowBackend* windowMgr = new CGWindowBackend;
-
 void CGWindowBackendSDL::init() {
 
 }

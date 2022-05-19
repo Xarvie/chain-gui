@@ -36,7 +36,5 @@ public:
 
     }
 };
-
-typedef CGWindowBackendSDL CGWindowBackend;
-extern CGWindowBackend* windowMgr;
+typedef  CGWindowBackendSDL _CGWindowBackend;
 #endif //CHAIN_GUI_CGWINDOWBACKENDAPI_H
