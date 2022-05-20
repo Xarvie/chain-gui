@@ -109,7 +109,7 @@ public:
 		return tm.advance.x;
 	}
 
-	void drawText(const char *text, const Font &font, int x, int y, int w, int d) {
+	void drawText(const char *text, const Font &font, int x, int y, int w, int h) {
 		BLPoint p(x, y + font.fm.ascent);
 
 		for (;;) {

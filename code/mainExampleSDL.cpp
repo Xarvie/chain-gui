@@ -5,6 +5,7 @@
 #include "chain-gui/ChainGui.h"
 #include <iostream>
 #include <vector>
+#include <mutex>
 
 int w = 255; int h = 255;
 int main(int argc, char *argv[]) {
@@ -22,6 +23,7 @@ int main(int argc, char *argv[]) {
     if(window == NULL)
         std::cout << "create Window Error." << std::endl;
 
+//    auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
@@ -35,14 +37,11 @@ int main(int argc, char *argv[]) {
 
     Window win;
     win.create(NULL, "window1",5, 5,w-10, h-10);
-
     while(true)
     {
         SDL_Event e;
         SDL_RenderClear(renderer);
-
         unsigned char* pixels = gui->draw();
-
         SDL_UpdateTexture(
                 texture,
                 NULL,

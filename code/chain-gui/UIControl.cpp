@@ -118,6 +118,7 @@ int Box::resize(int w, int h) {
 Window *Window::create(Box *parent, const std::string &title, int x, int y, int w, int h) {
     auto *self = new Window;
     self->init(parent, x, y, w, h);
+    self->title = title;
     return self;
 }
 
@@ -138,6 +139,9 @@ int Window::draw(int64_t tick) {
     gui->canvas.setFillStyle(0xFF00FF00);
     gui->canvas.drawRectFilled(this->collider.x, this->collider.y, this->collider.w, 20);
 
+    gui->canvas.setFillStyle(0xFF000000);
+    gui->canvas.drawText(this->title.c_str()
+                         , *gui->getFont("SourceHanSans-Normal.otf", 10),this->collider.x+10,10,100,100);
     gui->canvas.setFillStyle(0xFFF20202);
     gui->canvas.drawCircleFilled(this->collider.x + this->collider.w - 10.0, this->collider.y + 10.0, 5);
 

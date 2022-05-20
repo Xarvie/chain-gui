@@ -8,6 +8,7 @@
 #include "VgBackend.h"
 #include "UIControl.h"
 #include <set>
+#include <unordered_map>
 
 class ChainGui {
 public:
@@ -16,6 +17,7 @@ public:
     void pollEvent(void * event);
     unsigned char* draw();
     void setCanvasSize(int w, int h);
+    Font* getFont(const std::string str, int fontSize);
 
     std::set<Window*> rootWindows;
 
@@ -28,6 +30,10 @@ public:
     VGBackend canvas;
     int w = 0;
     int h = 0;
+    std::unordered_map<int64_t, Font> fontMap;
+    int64_t defaultFontHash = 0;
+    int64_t defaultFontSize = 0;
+    Font* defaultFont = nullptr;
 };
 
 
