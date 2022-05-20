@@ -16,7 +16,7 @@ void ChainGui::init(int w, int h) {
 
 //    std::string fontFile = "../Res/AdobeArabic-Regular.otf";
     this->defaultFontSize = 16;
-    defaultFontHash = fnv32("SourceHanSans-Normal.otf")*1000+this->defaultFontSize;
+    defaultFontHash = int64_t(fnv32("SourceHanSans-Normal.otf")*1000+this->defaultFontSize);
     std::string fontFile = "../Res/SourceHanSans-Normal.otf";
     auto & font = this->fontMap[defaultFontHash];
     this->defaultFont = &font;
@@ -116,16 +116,19 @@ ChainGui *ChainGui::get() {
     static ChainGui gui;
     return &gui;
 }
-
+#if defined(_WIN32)
+#else
+#include <sys/time.h>
+#endif
 int64_t ChainGui::timeNow() {
 #ifdef _WIN32
-        _timeb timebuffer;
-        _ftime(&timebuffer);
-        int64_t ret = timebuffer.time;
-        ret = ret * 1000 + timebuffer.millitm;
-        return ret;
+    _timeb timebuffer;
+    _ftime(&timebuffer);
+    int64_t ret = timebuffer.time;
+    ret = ret * 1000 + timebuffer.millitm;
+    return ret;
 #else
-        timeval tv;
+    timeval tv;
     ::gettimeofday(&tv, 0);
     int64_t ret = tv.tv_sec;
     return ret * 1000 + tv.tv_usec / 1000;

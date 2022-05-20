@@ -7,7 +7,7 @@
 #include <vector>
 #include <mutex>
 
-int w = 255; int h = 255;
+int w = 2560; int h = 1440;
 int main(int argc, char *argv[]) {
     auto gui = ChainGui::get();
 

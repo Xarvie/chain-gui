@@ -34,7 +34,14 @@ struct DrawBackendInterface {
 
 };
 
-struct BlendBackendFont {
+class BlendBackendFont {
+public:
+    BlendBackendFont(){
+
+    }
+    ~BlendBackendFont(){
+
+    }
 	BLFont font;
 	double fontSize;
 	double fontSizeReal;

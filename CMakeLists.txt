@@ -45,7 +45,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/blend2d/src/)
 # Enable Blend2D static build.
 set(BLEND2D_STATIC TRUE)
 include("${BLEND2D_DIR}/CMakeLists.txt")
-link_directories(${PROJECT_BINARY_DIR}/thirdparty/blend2d/build)
+link_directories(${PROJECT_BINARY_DIR}/thirdparty/)
 set(LIBS ${LIBS}  libblend2d.a Blend2D::Blend2D)
 
 
@@ -185,6 +185,7 @@ if (NOT WEB)
     ELSEIF (LINUX)
 
         add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL")
+#        find_library(SDL2 SDL2)
         set(LIBS ${LIBS} SDL2::SDL2main SDL2::SDL2-static )
         include_directories(${CMAKE_PROJECT_NAME}
                 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
@@ -255,8 +256,11 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Windows") #target_link_libraries(MyExec PUBLIC "-
                 ${LIBS})
     ENDIF ()
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-    target_link_libraries(${CMAKE_PROJECT_NAME} pthread
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+    target_link_libraries(${CMAKE_PROJECT_NAME}
+            pthread
+            ${LIBS}
             )
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
