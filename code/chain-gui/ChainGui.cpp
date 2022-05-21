@@ -5,7 +5,7 @@
 #include "ChainGui.h"
 #include "CGWindowBackend.h"
 #include "fnv1a.h"
-;
+
 void ChainGui::init(int w, int h) {
     windowMgr->init();
     canvas.init(w, h);
@@ -13,8 +13,8 @@ void ChainGui::init(int w, int h) {
     startTick = ChainGui::timeNow();
     this->w = w;
     this->h = h;
+    clipRect = {0.0,0.0, (double)w, (double)h};
 
-//    std::string fontFile = "../Res/AdobeArabic-Regular.otf";
     this->defaultFontSize = 16;
     defaultFontHash = int64_t(fnv32("SourceHanSans-Normal.otf")*1000+this->defaultFontSize);
     std::string fontFile = "../Res/SourceHanSans-Normal.otf";
@@ -85,22 +85,21 @@ unsigned char* ChainGui::draw(){
     static std::string curFps = "";
     fps++;
     if(curTick - fpsCounter >= 1000){
-        curFps = std::to_string(fps);
+        curFps = std::string("FPS:")+std::to_string(fps);
         fps = 0;
         fpsCounter = curTick;
     }
 
     canvas.drawBegin(NULL);
-    canvas.setFillStyle(0x00FFFFFF);
-    canvas.fillAll();
-
+    canvas.clear();
+    clipRect = {0.0,0.0, (double)w, (double)h};
     for(auto window:this->rootWindows){
         window->draw(curTick);
     }
 
-    canvas.setFillStyle(0xFF990000);
+    canvas.setFillStyle(0xFFFFFF00);
     canvas.drawText(curFps.c_str()
-            , *defaultFont, 20,20,100,100);
+            , getFont("SourceHanSans-Normal.otf", 40), 5,5,100,100);
 
     canvas.drawEnd();
     return canvas.getPixels();
@@ -109,6 +108,7 @@ unsigned char* ChainGui::draw(){
 void ChainGui::setCanvasSize(int w, int h){
     this->w = w;
     this->h = h;
+    clipRect = {0.0,0.0, (double)w, (double)h};
     canvas.setCanvasSize(w, h);
 }
 

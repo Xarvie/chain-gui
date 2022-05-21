@@ -7,7 +7,7 @@
 #include <vector>
 #include <mutex>
 
-int w = 2560; int h = 1440;
+int w = 1920; int h = 1080;
 int main(int argc, char *argv[]) {
     auto gui = ChainGui::get();
 
@@ -23,8 +23,10 @@ int main(int argc, char *argv[]) {
     if(window == NULL)
         std::cout << "create Window Error." << std::endl;
 
+
 //    auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+//    glxinfo | grep "OpenGL version" check GPU support
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     SDL_Texture* texture = SDL_CreateTexture(
@@ -35,8 +37,43 @@ int main(int argc, char *argv[]) {
     );
 
 
-    Window win;
-    win.create(NULL, "window1",5, 5,w-10, h-10);
+
+    auto win1 = Window::create(NULL, "window1",50, 35,800, 600);
+    auto edit1 = EditBox::create(win1, "I'm the star in the northern sky, I never stayed anywhere\n"
+                                       "我是北天一颗星辰，天涯海角无处停留\n"
+                                       "Я звезда северного неба, я нигде не останавливался\n"
+                                       "我是北天一顆星辰，天涯海角無處停留\n"
+                                       "Soy la estrella en el cielo del norte, nunca me quedé en ningún lado\n"
+                                       "私は北の空の星です、私はどこにも滞在しませんでした\n"
+                                       "나는 북쪽 하늘의 별, 어디에도 머물지 않았어\n"
+                                       "Je suis l'étoile dans le ciel du nord, je ne suis jamais resté nulle part\n"
+                                       "Eu sou a estrela no céu do norte, nunca fiquei em lugar nenhum\n",
+                                 20,40, 300, 360);
+
+    auto edit2 = EditBox::create(win1, "I'm the star in the northern sky, I never stayed anywhere\n"
+                                       "我是北天一颗星辰，天涯海角无处停留\n"
+                                       "Я звезда северного неба, я нигде не останавливался\n"
+                                       "我是北天一顆星辰，天涯海角無處停留\n"
+                                       "Soy la estrella en el cielo del norte, nunca me quedé en ningún lado\n"
+                                       "私は北の空の星です、私はどこにも滞在しませんでした\n"
+                                       "나는 북쪽 하늘의 별, 어디에도 머물지 않았어\n"
+                                       "Je suis l'étoile dans le ciel du nord, je ne suis jamais resté nulle part\n"
+                                       "Eu sou a estrela no céu do norte, nunca fiquei em lugar nenhum\n",
+                                 20+340,40, 700, 300);
+
+    {
+        auto win2 = Window::create(NULL, "window2",500, 500,400, 400);
+        auto edit1 = EditBox::create(win2, "I'm the star in the northern sky, I never stayed anywhere\n"
+                                           "我是北天一颗星辰，天涯海角无处停留\n"
+                                           "Я звезда северного неба, я нигде не останавливался\n"
+                                           "我是北天一顆星辰，天涯海角無處停留\n"
+                                           "Soy la estrella en el cielo del norte, nunca me quedé en ningún lado\n"
+                                           "私は北の空の星です、私はどこにも滞在しませんでした\n"
+                                           "나는 북쪽 하늘의 별, 어디에도 머물지 않았어\n"
+                                           "Je suis l'étoile dans le ciel du nord, je ne suis jamais resté nulle part\n"
+                                           "Eu sou a estrela no céu do norte, nunca fiquei em lugar nenhum\n",
+                                     20,40, 700, 300);
+    }
     while(true)
     {
         SDL_Event e;

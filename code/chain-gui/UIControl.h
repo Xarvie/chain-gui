@@ -9,8 +9,24 @@
 #include <set>
 #include "VgBackend.h"
 #include "AABB.h"
+#include "TextLayout.h"
 
 typedef unsigned int UIColor;
+
+struct UIRectI {
+    int l;
+    int t;
+    int r;
+    int b;
+};
+
+struct UIRectF {
+    double l;
+    double t;
+    double r;
+    double b;
+};
+
 
 class WindowCollision {
 public:
@@ -46,21 +62,21 @@ public:
 
 class UIEvent {
 public:
-//    virtual void onMouseMove(int x, int y);
-//    virtual void onMouseLDown(int x, int y);
-//    virtual void onMouseLUp(int x, int y);
-//    virtual void onMouseRDown(int x, int y);
-//    virtual void onMouseRUp(int x, int y);
-//    virtual void onMouseMDown(int x, int y);
-//    virtual void onMouseMUp(int x, int y);
-//    virtual void onKeyDown(int Key);
-//    virtual void onKeyUp(int Key);
-//    virtual void onMouseWheel(int val);
-//    virtual void onMouseDrag(int x, int y, int gx, int gy);
-//    virtual void onResize(int newSizeW, int newSizeH);
-//    virtual void onWindowResize(int newSizeW, int newSizeH);
-//    virtual void onInputText(const std::string& str);
-//    virtual void onFocus(bool isLoseFocus);
+    virtual void onMouseMove(int x, int y){};
+    virtual void onMouseLDown(int x, int y){};
+    virtual void onMouseLUp(int x, int y){};
+    virtual void onMouseRDown(int x, int y){};
+    virtual void onMouseRUp(int x, int y){};
+    virtual void onMouseMDown(int x, int y){};
+    virtual void onMouseMUp(int x, int y){};
+    virtual void onKeyDown(int Key){};
+    virtual void onKeyUp(int Key){};
+    virtual void onMouseWheel(int val){};
+    virtual void onMouseDrag(int x, int y, int gx, int gy){};
+    virtual void onResize(int newSizeW, int newSizeH){};
+    virtual void onWindowResize(int newSizeW, int newSizeH){};
+    virtual void onInputText(const std::string& str){};
+    virtual void onFocus(bool isLoseFocus){this->focus = !isLoseFocus;};
     bool dragable = true;
     bool isPress = false;
     int pressPosX = 0;
@@ -75,8 +91,8 @@ public:
     std::string title;
     int64_t id;
     Collider collider;
-    int ax = 0;
-    int ay = 0;
+    double ax = 0.0;
+    double ay = 0.0;
     int layer;
     int isInit;
 
@@ -88,6 +104,7 @@ public:
 
     virtual void setSize(int w, int h);
 
+    virtual void calcClipRect();
     virtual int init(Box *parent);
 
     virtual int draw(int64_t tick);
@@ -96,6 +113,7 @@ public:
 
     int setDirty(bool dirty);
 
+    UIRectF clipRect;
 };
 
 struct Cmp {
@@ -120,12 +138,9 @@ public:
 
     int draw(int64_t tick) override;
 
-    int setColor(UIColor color);
-
     int resize(int w, int h);
 
     std::set<BaseControl *, Cmp> childControlMap;
-    UIColor color = 0;
 };
 
 class Window : public Box {
@@ -138,13 +153,13 @@ public:
 
     int draw(int64_t tick);
 
-    void onMouseMove(int x, int y);
-
-    void onMouseLDown(int x, int y);
-
-    void onMouseLUp(int x, int y);
-
-    void onMouseDrag(int x, int y, int gx, int gy);
+//    void onMouseMove(int x, int y);
+//
+//    void onMouseLDown(int x, int y);
+//
+//    void onMouseLUp(int x, int y);
+//
+//    void onMouseDrag(int x, int y, int gx, int gy);
 
     int resize(int x, int y);
 
@@ -156,6 +171,60 @@ public:
     UIColor color = 0;
 
 };
+#define TBOX
+#if defined(TBOX)
+class EditBox : public BaseControl {
+public:
+    bool ctrl = false;
+    bool alt = false;
+    bool shift = false;
+    bool win = false;
+    EditBox();
 
+    virtual ~EditBox();
 
+    static EditBox *create(Box *parent, const std::string &text, int x, int y, int w, int h);
+
+    int destroy();
+
+    int draw(int64_t tick);
+
+    int setFont(const std::string &fontName, float fontSize);
+
+    void textboxOnClick(int x, int y);
+    virtual void onMouseMove(int x, int y);
+    virtual void onMouseLDown(int x, int y);
+    virtual void onMouseLUp(int x, int y);
+    virtual void onMouseRDown(int x, int y);
+    virtual void onMouseRUp(int x, int y);
+    virtual void onMouseMDown(int x, int y);
+    virtual void onMouseMUp(int x, int y);
+    virtual void onKeyDown(int Key);
+    virtual void onKeyUp(int Key);
+    virtual void onMouseWheel(int val);
+    virtual void onMouseDrag(int x, int y, int gx, int gy);
+    virtual void onInputText(const std::string& str);
+    virtual void onFocus(bool isLoseFocus);
+    virtual void setPos(int x, int y);
+    virtual void setSize(int w, int h);
+
+    void onWindowResize(int newSizeW, int newSizeH);
+
+    std::string text;
+    UIColor colorText;
+    UIColor colorBkg = 0;
+    UIColor colorBorder = 0;
+
+    int state;
+    Font* font = nullptr;
+    bool mouseLState = false;
+    bool mouseMState = false;
+    bool mouseRState = false;
+    int mouseLclickPosX = 0;
+    int mouseLclickPosY = 0;
+    Collider clickCollider;
+    TextLayout tl;
+
+};
+#endif
 #endif //CHAIN_GUI_UICONTROL_H

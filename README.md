@@ -14,19 +14,19 @@ cmake ..
     - 自定义后端 <font color="#dd0000">0%</font>
   - GPU硬渲染 <font color="#dd0000">0%</font>
   - CPU软渲染 <font color="#dd0000">✓</font>
-- 布局器  <font color="#dd0000">0%</font>
+- 布局器 
   - 固定布局  <font color="#dd0000">30%</font>
   - 比例布局 <font color="#dd0000">0%</font>
   - 自动布局 <font color="#dd0000">0%</font>
-- 窗口 <font color="#dd0000">30%</font>
+- 窗口 <font color="#dd0000">70%</font>
 - 按钮 <font color="#dd0000">0%</font>
 - 标签 <font color="#dd0000">0%</font>
 - 图片框 <font color="#dd0000">0%</font>
-- 文本编辑框
+- 文本编辑框 
   - 预览器（View） 
     - 不自动换行 <font color="#dd0000">0%</font> 
-    - 自动换行 <font color="#dd0000">0%</font>
-    - 分字分行 <font color="#dd0000">0%</font>
+    - 自动换行 <font color="#dd0000">70%</font>
+      - 分字分行 <font color="#dd0000">90%</font>
       - ~~分词、分符分行~~
       - ~~RTL~~
   - 选取器（Selector） 

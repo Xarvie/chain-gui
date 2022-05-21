@@ -10,6 +10,7 @@
 #include <set>
 #include <unordered_map>
 
+
 class ChainGui {
 public:
     void init(int w, int h);
@@ -33,6 +34,7 @@ public:
     std::unordered_map<int64_t, Font> fontMap;
     int64_t defaultFontHash = 0;
     int64_t defaultFontSize = 0;
+    UIRectF clipRect;
     Font* defaultFont = nullptr;
 };
 
