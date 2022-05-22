@@ -14,14 +14,14 @@ int main(int argc, char *argv[]) {
     gui->init(w, h);
     auto ret = SDL_InitSubSystem(SDL_INIT_VIDEO);
     if(ret != 0)
-        std::cout << "create Window Error." << SDL_GetError() << std::endl;
+        std::cout << "create UIWindow Error." << SDL_GetError() << std::endl;
     auto* window = SDL_CreateWindow(
             "sdl demo",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             w, h,
              SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     if(window == NULL)
-        std::cout << "create Window Error." << std::endl;
+        std::cout << "create UIWindow Error." << std::endl;
 
 
 //    auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 
 
 
-    auto win1 = Window::create(NULL, "window1",50, 35,800, 600);
+    auto win1 = UIWindow::create(NULL, "window1", 50, 35, 800, 600);
     auto edit1 = EditBox::create(win1, "I'm the star in the northern sky, I never stayed anywhere\n"
                                        "我是北天一颗星辰，天涯海角无处停留\n"
                                        "Я звезда северного неба, я нигде не останавливался\n"
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
                                  20+340,40, 700, 300);
 
     {
-        auto win2 = Window::create(NULL, "window2",500, 500,400, 400);
+        auto win2 = UIWindow::create(NULL, "window2", 500, 500, 400, 400);
         auto edit1 = EditBox::create(win2, "I'm the star in the northern sky, I never stayed anywhere\n"
                                            "我是北天一颗星辰，天涯海角无处停留\n"
                                            "Я звезда северного неба, я нигде не останавливался\n"

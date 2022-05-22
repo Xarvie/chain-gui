@@ -154,29 +154,29 @@ typedef enum
 typedef enum
 {
     SDL_WINDOWEVENT_NONE,           /**< Never used */
-    SDL_WINDOWEVENT_SHOWN,          /**< Window has been shown */
-    SDL_WINDOWEVENT_HIDDEN,         /**< Window has been hidden */
-    SDL_WINDOWEVENT_EXPOSED,        /**< Window has been exposed and should be
+    SDL_WINDOWEVENT_SHOWN,          /**< UIWindow has been shown */
+    SDL_WINDOWEVENT_HIDDEN,         /**< UIWindow has been hidden */
+    SDL_WINDOWEVENT_EXPOSED,        /**< UIWindow has been exposed and should be
                                          redrawn */
-    SDL_WINDOWEVENT_MOVED,          /**< Window has been moved to data1, data2
+    SDL_WINDOWEVENT_MOVED,          /**< UIWindow has been moved to data1, data2
                                      */
-    SDL_WINDOWEVENT_RESIZED,        /**< Window has been resized to data1xdata2 */
+    SDL_WINDOWEVENT_RESIZED,        /**< UIWindow has been resized to data1xdata2 */
     SDL_WINDOWEVENT_SIZE_CHANGED,   /**< The window size has changed, either as
                                          a result of an API call or through the
                                          system or user changing the window size. */
-    SDL_WINDOWEVENT_MINIMIZED,      /**< Window has been minimized */
-    SDL_WINDOWEVENT_MAXIMIZED,      /**< Window has been maximized */
-    SDL_WINDOWEVENT_RESTORED,       /**< Window has been restored to normal size
+    SDL_WINDOWEVENT_MINIMIZED,      /**< UIWindow has been minimized */
+    SDL_WINDOWEVENT_MAXIMIZED,      /**< UIWindow has been maximized */
+    SDL_WINDOWEVENT_RESTORED,       /**< UIWindow has been restored to normal size
                                          and position */
-    SDL_WINDOWEVENT_ENTER,          /**< Window has gained mouse focus */
-    SDL_WINDOWEVENT_LEAVE,          /**< Window has lost mouse focus */
-    SDL_WINDOWEVENT_FOCUS_GAINED,   /**< Window has gained keyboard focus */
-    SDL_WINDOWEVENT_FOCUS_LOST,     /**< Window has lost keyboard focus */
+    SDL_WINDOWEVENT_ENTER,          /**< UIWindow has gained mouse focus */
+    SDL_WINDOWEVENT_LEAVE,          /**< UIWindow has lost mouse focus */
+    SDL_WINDOWEVENT_FOCUS_GAINED,   /**< UIWindow has gained keyboard focus */
+    SDL_WINDOWEVENT_FOCUS_LOST,     /**< UIWindow has lost keyboard focus */
     SDL_WINDOWEVENT_CLOSE,          /**< The window manager requests that the window be closed */
-    SDL_WINDOWEVENT_TAKE_FOCUS,     /**< Window is being offered a focus (should SetWindowInputFocus() on itself or a subwindow, or ignore) */
-    SDL_WINDOWEVENT_HIT_TEST,       /**< Window had a hit test that wasn't SDL_HITTEST_NORMAL. */
+    SDL_WINDOWEVENT_TAKE_FOCUS,     /**< UIWindow is being offered a focus (should SetWindowInputFocus() on itself or a subwindow, or ignore) */
+    SDL_WINDOWEVENT_HIT_TEST,       /**< UIWindow had a hit test that wasn't SDL_HITTEST_NORMAL. */
     SDL_WINDOWEVENT_ICCPROF_CHANGED,/**< The ICC profile of the window's display has changed. */
-    SDL_WINDOWEVENT_DISPLAY_CHANGED /**< Window has been moved to display data1. */
+    SDL_WINDOWEVENT_DISPLAY_CHANGED /**< UIWindow has been moved to display data1. */
 } SDL_WindowEventID;
 
 /**
@@ -203,7 +203,7 @@ typedef enum
 } SDL_DisplayOrientation;
 
 /**
- *  \brief Window flash operation
+ *  \brief UIWindow flash operation
  */
 typedef enum
 {
@@ -701,7 +701,7 @@ extern DECLSPEC Uint32 SDLCALL SDL_GetWindowPixelFormat(SDL_Window * window);
  *
  * If the window is set fullscreen, the width and height parameters `w` and
  * `h` will not be used. However, invalid size parameters (e.g. too large) may
- * still fail. Window size is actually limited to 16384 x 16384 for all
+ * still fail. UIWindow size is actually limited to 16384 x 16384 for all
  * platforms at window creation.
  *
  * If the window is created with any of the SDL_WINDOW_OPENGL or

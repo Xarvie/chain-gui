@@ -90,8 +90,8 @@ typedef enum
     /* Display events */
     SDL_DISPLAYEVENT   = 0x150,  /**< Display state change */
 
-    /* Window events */
-    SDL_WINDOWEVENT    = 0x200, /**< Window state change */
+    /* UIWindow events */
+    SDL_WINDOWEVENT    = 0x200, /**< UIWindow state change */
     SDL_SYSWMEVENT,             /**< System specific event */
 
     /* Keyboard events */
@@ -200,7 +200,7 @@ typedef struct SDL_DisplayEvent
 } SDL_DisplayEvent;
 
 /**
- *  \brief Window state change event data (event.window.*)
+ *  \brief UIWindow state change event data (event.window.*)
  */
 typedef struct SDL_WindowEvent
 {
@@ -612,7 +612,7 @@ typedef union SDL_Event
     Uint32 type;                            /**< Event type, shared with all events */
     SDL_CommonEvent common;                 /**< Common event data */
     SDL_DisplayEvent display;               /**< Display event data */
-    SDL_WindowEvent window;                 /**< Window event data */
+    SDL_WindowEvent window;                 /**< UIWindow event data */
     SDL_KeyboardEvent key;                  /**< Keyboard event data */
     SDL_TextEditingEvent edit;              /**< Text editing event data */
     SDL_TextEditingExtEvent editExt;        /**< Extended text editing event data */

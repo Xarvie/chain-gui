@@ -67,7 +67,7 @@ public:
     double lastCursorXPixer = 0.0;
     double font_height = 0;
     int blink_time = 0;
-    Font* font = nullptr;
+    UIFont* font = nullptr;
     int MoveOffsetTag = -1;
 
     struct Pos {

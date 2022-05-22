@@ -4,7 +4,7 @@
 
 #ifndef CHAIN_GUI_CGWINDOWBACKEND_H
 #define CHAIN_GUI_CGWINDOWBACKEND_H
-#include "ChainGui.h"
+
 #if defined(SDL_BACKEND)
 #include "CGWindowBackendSDL.h"
 #endif

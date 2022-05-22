@@ -35,10 +35,10 @@ void ChainGui::pollEvent(void * event) {
     windowMgr->pollEvent(event);
 }
 
-Font* ChainGui::getFont(const std::string fontName, int fontSize) {
+UIFont* ChainGui::getFont(const std::string fontName, int fontSize) {
     int64_t code = fnv32(fontName.c_str())*1000+fontSize;
     auto it = this->fontMap.find(code);
-    Font * font = nullptr;
+    UIFont * font = nullptr;
     if(it != this->fontMap.end()){
         font = &it->second;
     }else{
@@ -133,4 +133,22 @@ int64_t ChainGui::timeNow() {
     int64_t ret = tv.tv_sec;
     return ret * 1000 + tv.tv_usec / 1000;
 #endif
+}
+
+BaseControl *ChainGui::getWidgetByPoint(int mouseX, int mouseY) {
+    std::set<AABBKey> processSet;
+    std::set<AABBKey> resultSet;
+    this->wc.queryByPoint(mouseX, mouseY, processSet, resultSet, false);
+    BaseControl *topLayerBaseControl = nullptr;
+    for (auto &E : resultSet) {
+        auto baseControl = (BaseControl *) E;
+
+
+        if (topLayerBaseControl == NULL)
+            topLayerBaseControl = baseControl;
+        else
+            topLayerBaseControl = !Cmp::cmp(*topLayerBaseControl, *baseControl) ? topLayerBaseControl : baseControl;
+    }
+
+    return topLayerBaseControl;
 }

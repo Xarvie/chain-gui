@@ -57,7 +57,7 @@ export SDL_DIRECTFB_YUV_UNDERLAY=1
 to make the YUV texture an underlay. This will make the cursor to
 be shown.
 
-Simple Window Manager
+Simple UIWindow Manager
 =====================
 
 The driver has support for a very, very basic window manager you may

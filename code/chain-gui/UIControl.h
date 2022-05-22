@@ -10,7 +10,7 @@
 #include "VgBackend.h"
 #include "AABB.h"
 #include "TextLayout.h"
-
+#include "CGWindowBackend.h"
 typedef unsigned int UIColor;
 
 struct UIRectI {
@@ -50,8 +50,6 @@ public:
 
 class Box;
 
-class Window;
-
 class Collider {
 public:
     int x;
@@ -59,8 +57,21 @@ public:
     int w;
     int h;
 };
-
 class UIEvent {
+public:
+    UIEvent(){};
+    virtual ~UIEvent(){};
+
+        virtual void evFinger(int action, int fingerID, float x, float y, float z);
+        virtual void evQuit();
+        virtual void evKey(int action, int key);
+        virtual void evMouse(int action, int button, int x, int y);
+        virtual void evInput(const std::string &str);
+        virtual void evWindowResize(int w, int h);
+
+};
+
+class UIControlEvent {
 public:
     virtual void onMouseMove(int x, int y){};
     virtual void onMouseLDown(int x, int y){};
@@ -85,7 +96,7 @@ public:
 };
 
 
-class BaseControl : public UIEvent {
+class BaseControl : public UIControlEvent {
 public:
     Box *parent;
     std::string title;
@@ -95,7 +106,7 @@ public:
     double ay = 0.0;
     int layer;
     int isInit;
-
+    bool drawBound_ = false;
     bool colliderOn = true;
 
     bool highlightShow = false;
@@ -143,13 +154,13 @@ public:
     std::set<BaseControl *, Cmp> childControlMap;
 };
 
-class Window : public Box {
+class UIWindow : public Box {
 public:
-    static Window *create(Box *parent, const std::string &title, int x, int y, int w = 800, int h = 800);
+    static UIWindow *create(Box *parent, const std::string &title, int x, int y, int w = 800, int h = 800);
 
     int init(Box *parent, int x = 0, int y = 0, int w = 800, int h = 800) override;
 
-    BaseControl *getWidgetByPoint(int mouseX, int mouseY);
+
 
     int draw(int64_t tick);
 
@@ -216,7 +227,7 @@ public:
     UIColor colorBorder = 0;
 
     int state;
-    Font* font = nullptr;
+    UIFont* font = nullptr;
     bool mouseLState = false;
     bool mouseMState = false;
     bool mouseRState = false;

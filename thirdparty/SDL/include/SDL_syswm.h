@@ -247,7 +247,7 @@ struct SDL_SysWMinfo
         struct
         {
             Display *display;           /**< The X11 display */
-            Window window;              /**< The X11 window */
+            UIWindow window;              /**< The X11 window */
         } x11;
 #endif
 #if defined(SDL_VIDEO_DRIVER_DIRECTFB)

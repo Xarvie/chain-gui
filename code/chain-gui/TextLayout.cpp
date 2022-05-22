@@ -6,7 +6,7 @@
 #include "TextLayout.h"
 #include "utf8/utf8.h"
 #include "CGWindowBackend.h"
-
+#include "ChainGui.h"
 void TextLayout::onResize() {
     double allSize = 0;
     this->pageLayout(this->cacheLineNumber, this->lineTextList.size() - 1, 0, this->yOffset,

@@ -183,12 +183,16 @@ if (NOT WEB)
         include_directories(${CMAKE_PROJECT_NAME}
                 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
     ELSEIF (LINUX)
-
-        add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL")
-#        find_library(SDL2 SDL2)
-        set(LIBS ${LIBS} SDL2::SDL2main SDL2::SDL2-static )
-        include_directories(${CMAKE_PROJECT_NAME}
-                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
+        find_package(SDL2)
+        if (SDL2_FOUND)
+            include_directories(${SDL2_INCLUDE_DIRS})
+            set(LIBS ${LIBS} ${SDL2_LIBRARIES})
+        else()
+            add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL")
+            set(LIBS ${LIBS} SDL2::SDL2main SDL2::SDL2-static )
+            include_directories(${CMAKE_PROJECT_NAME}
+                    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
+        endif()
 
         #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath=/usr/lib/x86_64-linux-gnu/ -ludev")
         #        set(LIBS ${LIBS} /usr/lib/x86_64-linux-gnu/libudev.so ${SDL2_LIBRARIES})
@@ -198,7 +202,6 @@ if (NOT WEB)
         #                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
     ELSEIF(ANDROID)
         add_subdirectory(thirdparty/SDL)
-
         find_library(SDL2 SDL2)
         set(LIBS ${LIBS} SDL2)
     ELSEIF(MACOS)

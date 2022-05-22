@@ -147,14 +147,14 @@ int Box::resize(int w, int h) {
     return 0;
 }
 
-Window *Window::create(Box *parent, const std::string &title, int x, int y, int w, int h) {
-    auto *self = new Window;
+UIWindow *UIWindow::create(Box *parent, const std::string &title, int x, int y, int w, int h) {
+    auto *self = new UIWindow;
     self->init(parent, x, y, w, h);
     self->title = title;
     return self;
 }
 
-int Window::init(Box *parent, int x, int y, int w, int h) {
+int UIWindow::init(Box *parent, int x, int y, int w, int h) {
     GET_GUI();
     if (parent == NULL) {
         gui->rootWindows.insert(this);
@@ -162,7 +162,7 @@ int Window::init(Box *parent, int x, int y, int w, int h) {
     return Box::init(parent, x, y, w, h);
 }
 
-int Window::draw(int64_t tick) {
+int UIWindow::draw(int64_t tick) {
     GET_GUI();
     gui->canvas.clipDrawStart(clipRect.l, clipRect.t, clipRect.r-clipRect.l, clipRect.b-clipRect.t);
     canvas.setFillStyle(0xFF0000FF);
@@ -197,7 +197,8 @@ int BaseControl::init(Box *parent) {
     this->ax = (parent ? parent->ax : 0) + this->collider.x;
     this->ay = (parent ? parent->ay : 0) + this->collider.y;
     this->calcClipRect();
-    gui->wc.insertAABB((AABBKey) this, this->ax, this->ay, this->collider.w, this->collider.h);
+    gui->wc.insertAABB((AABBKey)this, this->clipRect.l, this->clipRect.t, this->clipRect.r-this->clipRect.l, this->clipRect.b-this->clipRect.t);
+
     return 0;
 }
 
@@ -213,11 +214,12 @@ int BaseControl::draw(int64_t tick) {
 
 void BaseControl::drawBound() {
     GET_GUI();
-    if (!gui->drawBound)
+    if (!drawBound_)
         return;
-
+    canvas.setStrokeWidth(4.0);
     canvas.setStrokeStyle(0xFFFF0000);
     canvas.drawRect(this->ax, this->ay, this->collider.w, this->collider.h);
+    drawBound_ = false;
 }
 
 void BaseControl::setPos(int x, int y) {
@@ -693,15 +695,64 @@ void EditBox::setPos(int x, int y){
     this->collider.y = y;
     this->ax = this->parent->ax + x;
     this->ay = this->parent->ay + y;
-    gui->wc.updateAABB((AABBKey)this, this->ax+offsetX, this->ay+offsetY, this->collider.w, this->collider.h);
+    this->calcClipRect();
+    gui->wc.updateAABB((AABBKey)this, this->clipRect.l, this->clipRect.t, this->clipRect.r-this->clipRect.l, this->clipRect.b-this->clipRect.t);
 }
 
 void EditBox::setSize(int w, int h) {
     GET_GUI();
+    this->collider.w = w;
+    this->collider.h = h;
+    this->calcClipRect();
     gui->wc.removeAABB((AABBKey) this);
     if (w <= 0 || h <= 0)
         gui->wc.insertAABB((AABBKey)this, -1, -1,1, 1);
     else
         gui->wc.insertAABB((AABBKey)this, this->ax, this->ay, w, h);
+    gui->wc.updateAABB((AABBKey)this, this->clipRect.l, this->clipRect.t, this->clipRect.r-this->clipRect.l, this->clipRect.b-this->clipRect.t);
 }
 #endif
+
+void UIEvent::evFinger(int action, int fingerID, float x, float y, float z){
+
+}
+
+void UIEvent::evQuit(){
+
+}
+
+void UIEvent::evKey(int action, int key){
+
+}
+
+void UIEvent::evMouse(int action, int button, int x, int y){
+    auto gui = ChainGui::get();
+    if(action == ACTION_MOVE){
+        gui->curControl = (BaseControl *) gui->getWidgetByPoint(x, y);
+        if(gui->curControl)
+            gui->curControl->drawBound_ = true;
+
+
+    }else if(action == ACTION_DOWN){
+        SDL_CaptureMouse(SDL_TRUE);
+        if(button == BUTTON_LEFT){
+            gui->curControl = (BaseControl *) gui->getWidgetByPoint(x, y);
+            if(gui->curControl)
+                gui->curControl->drawBound_ = true;
+        }
+    }else if(action == ACTION_UP){
+        SDL_CaptureMouse(SDL_FALSE);
+    }
+
+
+
+}
+
+void UIEvent::evInput(const std::string &str){
+
+}
+
+void UIEvent::evWindowResize(int w, int h){
+    auto gui = ChainGui::get();
+    gui->setCanvasSize(w, h);
+}

@@ -49,7 +49,7 @@ public:
 	BLFontFace fontFace;
 	BLFontMetrics fm;
 };
-typedef BlendBackendFont Font;
+typedef BlendBackendFont UIFont;
 struct BlendBackendImage {
 	BLImage img;
 	bool empty = true;
@@ -83,7 +83,7 @@ public:
         this->data.w = w;
         this->data.h = h;
     }
-	double getTextWidth(const char *utf8Text, int len, BLGlyphBuffer &gb, Font *font) {
+	double getTextWidth(const char *utf8Text, int len, BLGlyphBuffer &gb, UIFont *font) {
 		double blankW = 0;
 		if (utf8Text[0] == 32 || utf8Text[0] == '\t') {
 
@@ -152,7 +152,7 @@ public:
 		data.ctx.fillRoundRect(x, y, w, h, 0.0f);
 	}
 
-    void drawText(const char *text, Font *font, double x, double y, double w, double h) {
+    void drawText(const char *text, UIFont *font, double x, double y, double w, double h) {
         BLPoint p(x, y + font->fm.ascent);
 
         for (;;) {
@@ -173,7 +173,7 @@ public:
         }
     }
 
-    void drawText(std::vector<std::string> &strVec, Font *font, int x, int y, int w, int d) {
+    void drawText(std::vector<std::string> &strVec, UIFont *font, int x, int y, int w, int d) {
         BLPoint p(x, y + font->fm.ascent);
 
         for (std::string &E: strVec) {
@@ -212,7 +212,7 @@ public:
         data.ctx.clearAll();
     }
 
-	int drawBegin(const Font *pfont) {
+	int drawBegin(const UIFont *pfont) {
 		const auto &font = pfont;
 		data.img.img = BLImage(data.w, data.h, BL_FORMAT_PRGB32);
 

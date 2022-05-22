@@ -69,6 +69,7 @@ void CGWindowBackendSDL::pollEvent(void * event) {
             evKey(key, action);
             break;
         }
+        case SDL_MOUSEMOTION:
         case SDL_MOUSEWHEEL:
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:{
@@ -105,6 +106,7 @@ void CGWindowBackendSDL::pollEvent(void * event) {
                 x = ev.wheel.x;
                 y = ev.wheel.y;
             }else if(ev.type == SDL_MOUSEMOTION){
+                action = ACTION_MOVE;
                 x = ev.motion.x;
                 y = ev.motion.y;
             }
