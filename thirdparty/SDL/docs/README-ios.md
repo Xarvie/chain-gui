@@ -34,7 +34,7 @@ TODO: Add information regarding App Store requirements such as icons, etc.
 Notes -- Retina / High-DPI and window sizes
 ==============================================================================
 
-UIWindow and display mode sizes in SDL are in "screen coordinates" (or "points",
+Window and display mode sizes in SDL are in "screen coordinates" (or "points",
 in Apple's terminology) rather than in pixels. On iOS this means that a window
 created on an iPhone 6 will have a size in screen coordinates of 375 x 667,
 rather than a size in pixels of 750 x 1334. All iOS apps are expected to

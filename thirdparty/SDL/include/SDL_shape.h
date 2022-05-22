@@ -106,7 +106,7 @@ typedef union {
 typedef struct SDL_WindowShapeMode {
     /** \brief The mode of these window-shape parameters. */
     WindowShapeMode mode;
-    /** \brief UIWindow-shape parameters. */
+    /** \brief Window-shape parameters. */
     SDL_WindowShapeParams parameters;
 } SDL_WindowShapeMode;
 

@@ -42,7 +42,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.UIWindow;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
@@ -749,7 +749,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             case COMMAND_CHANGE_WINDOW_STYLE:
                 if (Build.VERSION.SDK_INT >= 19) {
                     if (context instanceof Activity) {
-                        UIWindow window = ((Activity) context).getWindow();
+                        Window window = ((Activity) context).getWindow();
                         if (window != null) {
                             if ((msg.obj instanceof Integer) && ((Integer) msg.obj != 0)) {
                                 int flags = View.SYSTEM_UI_FLAG_FULLSCREEN |
@@ -793,7 +793,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             case COMMAND_SET_KEEP_SCREEN_ON:
             {
                 if (context instanceof Activity) {
-                    UIWindow window = ((Activity) context).getWindow();
+                    Window window = ((Activity) context).getWindow();
                     if (window != null) {
                         if ((msg.obj instanceof Integer) && ((Integer) msg.obj != 0)) {
                             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -1911,7 +1911,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             SDLActivity.getContext().notifyAll();
         }
 
-        Log.v("SDL", "UIWindow size: " + width + "x" + height);
+        Log.v("SDL", "Window size: " + width + "x" + height);
         Log.v("SDL", "Device size: " + nDeviceWidth + "x" + nDeviceHeight);
         SDLActivity.nativeSetScreenResolution(width, height, nDeviceWidth, nDeviceHeight, mDisplay.getRefreshRate());
         SDLActivity.onNativeResize();
@@ -1946,7 +1946,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         if (skip) {
             if (Build.VERSION.SDK_INT >= 24) {
                 if (SDLActivity.mSingleton.isInMultiWindowMode()) {
-                    Log.v("SDL", "Don't skip in Multi-UIWindow");
+                    Log.v("SDL", "Don't skip in Multi-Window");
                     skip = false;
                 }
             }
