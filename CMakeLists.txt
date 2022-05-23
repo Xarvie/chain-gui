@@ -46,7 +46,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/blend2d/src/)
 set(BLEND2D_STATIC TRUE)
 include("${BLEND2D_DIR}/CMakeLists.txt")
 link_directories(${PROJECT_BINARY_DIR}/thirdparty/)
-set(LIBS ${LIBS}  libblend2d.a Blend2D::Blend2D)
+set(LIBS ${LIBS}   Blend2D::Blend2D)
 
 
 set(USE_GCC ON)

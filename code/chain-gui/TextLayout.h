@@ -42,11 +42,14 @@ static std::list<LineStruct> split(const std::string &str_, char c) {
             } else {
 
                 if (len >= 2 && strPtrOld[len - 2] == '\r') {
-                    resVec.emplace_back(LineStruct{.lineStr=std::string(strPtrOld, strPtr - 2 - strPtrOld)});
+                    LineStruct ls;
+                    ls.lineStr=std::string(strPtrOld, strPtr - 2 - strPtrOld);
+                    resVec.emplace_back(ls);
                     strPtrOld = strPtr;
                 } else {
-
-                    resVec.emplace_back(LineStruct{.lineStr=std::string(strPtrOld, strPtr - 1 - strPtrOld)});
+                    LineStruct ls;
+                    ls.lineStr=std::string(strPtrOld, strPtr - 1 - strPtrOld);
+                    resVec.emplace_back(ls);
                     strPtrOld = strPtr;
                 }
             }

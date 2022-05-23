@@ -116,7 +116,11 @@ ChainGui *ChainGui::get() {
     static ChainGui gui;
     return &gui;
 }
-#if defined(_WIN32)
+#if defined(WIN32)
+
+
+#include <windows.h>
+
 #else
 #include <sys/time.h>
 #endif
