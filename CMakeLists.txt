@@ -1,16 +1,10 @@
-#https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling-for-ios-tvos-or-watchos
-#rm ./* && cmake .. -G "Xcode" -DCMAKE_SYSTEM_NAME=iOS && open 3d4.xcodeproj/
-#
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.10)
 
-
-
-PROJECT(chain-gui)
-list(APPEND CMAKE_MODULE_PATH
-        "${CMAKE_SOURCE_DIR}/cmake/macros")
-include(AutoCollect)
-set(CMAKE_CXX_STANDARD 17)
-
+project(APP)
+# cmake .. -DCMAKE_BUILD_TYPE=Release
+# cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+# cmake .. -G "Xcode" -DCMAKE_SYSTEM_NAME=iOS
+set(SERVER_ONLY 0)
 IF(EMSCRIPTEN)
     set(WEB 1)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "iOS")
@@ -37,152 +31,102 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(msvc 1)
 endif()
-link_directories(${PROJECT_BINARY_DIR}/)
-# lib blend2d
-set(BLEND2D_DIR "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/blend2d"
-        CACHE PATH "Location of 'blend2d'")
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/blend2d/src/)
-# Enable Blend2D static build.
-set(BLEND2D_STATIC TRUE)
-include("${BLEND2D_DIR}/CMakeLists.txt")
-link_directories(${PROJECT_BINARY_DIR}/thirdparty/)
-set(LIBS ${LIBS}   Blend2D::Blend2D)
 
+list(APPEND CMAKE_MODULE_PATH
+        "${CMAKE_SOURCE_DIR}/cmake/macros")
+include(cmake/macros/AutoCollect.cmake)
+set(CMAKE_CXX_STANDARD 20)
+IF(SERVER_ONLY)
+    PickIncludeDirectories(
+            ${CMAKE_CURRENT_SOURCE_DIR}/code
+            INCLUDEDIRS
+            # Exclude
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/client
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/Device
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/GameLogic
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/GraphicsBase
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/Graphics
 
-set(USE_GCC ON)
-set(SDL 1)
-set(GLFW 0)
-set(IOS 0)
-set(ASSIMP 0)
-set(IMGUI 0)
-set(GLEW 0)
-set(GLAD 0)
+    )
+    PickSourceFiles(
+            ${CMAKE_CURRENT_SOURCE_DIR}/code
+            CODEFILES
+            # Exclude
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/client
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/Device
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/GameLogic
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/GraphicsBase
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/Graphics
+    )
 
+ELSE()
+    PickIncludeDirectories(
+            ${CMAKE_CURRENT_SOURCE_DIR}/code
+            INCLUDEDIRS
+            # Exclude
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/GameLogic
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/Graphics
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/server/serverOnly
+    )
+    PickSourceFiles(
+            ${CMAKE_CURRENT_SOURCE_DIR}/code
+            CODEFILES
+            # Exclude
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/GameLogic
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/Graphics
+            ${CMAKE_CURRENT_SOURCE_DIR}/code/server/serverOnly
+    )
 
-IF (IOS)
-    set(SDL 1)
-    set(GLFW 0)
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DIOS")
-ENDIF ()
-
-IF (IOS)
-    set(GLAD 0)
-ELSEIF(EMSCRIPTEN)
-    set(GLAD 0)
-ELSEIF (GLAD)
-ENDIF ()
-
-add_definitions(-D_AFXDLL)
-set(CMAKE_MFC_FLAG 1)
-
-IF(SDL)
-    add_definitions(-DSDL_BACKEND)
 ENDIF()
 
-# cd build
-# cmake .. -G "MinGW Makefiles" -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DCMAKE_CXX_FLAGS="-static"
-PickIncludeDirectories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/code
-        INCLUDEDIRS
-        # Exclude
-        ${CMAKE_CURRENT_SOURCE_DIR}/build
-        ${CMAKE_CURRENT_SOURCE_DIR}/code/GameLogic
-        ${CMAKE_CURRENT_SOURCE_DIR}/code/util
-        ${CMAKE_CURRENT_SOURCE_DIR}/code/Graphics
-)
 
-set(INCLUDEDIRS ${INCLUDEDIRS})
-PickSourceFiles(
-        ${CMAKE_CURRENT_SOURCE_DIR}/code
-        CODEFILES
-        # Exclude
-        ${CMAKE_CURRENT_SOURCE_DIR}/build
-        ${CMAKE_CURRENT_SOURCE_DIR}/code/GameLogic
-        ${CMAKE_CURRENT_SOURCE_DIR}/code/util
-        ${CMAKE_CURRENT_SOURCE_DIR}/code/Graphics
-)
-
-
-MakeFilter(
-        ${CMAKE_CURRENT_SOURCE_DIR}/code)
-
-
-#add_library(STB_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/general/stb/stb_image.cpp")
-
-#include_directories(${CMAKE_PROJECT_NAME}
-#        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/general/stb/include/)
-#set(LIBS ${LIBS} STB_IMAGE)
-
-
-
-if(GLAD)
-    set(CODEFILES ${CODEFILES} ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/general/glad/glad.c)
-    set(INCLUDEDIRS ${INCLUDEDIRS} ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/general/glad/include/)
-endif()
-
-set(RES2 )
-if (IOS)
-    set(RES2 ${RES2} ${CMAKE_CURRENT_SOURCE_DIR}/data.0 code/ui/BaseControl.cpp code/ui/BaseControl.h code/utf8.h code/TextLayout.cpp code/TextLayout.h)
-endif()
-
-
-add_executable(${CMAKE_PROJECT_NAME}
-        ${CODEFILES} ${RES2})
-
-target_include_directories(${CMAKE_PROJECT_NAME}
-        PUBLIC ${INCLUDEDIRS})
-
-#HeadOnly Library
-IF(RAPIDJSON)
-    target_include_directories(${CMAKE_PROJECT_NAME}
-            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/general/rapidjson/)
+IF(SERVER_ONLY)
+ELSE()
+    include_directories(${CMAKE_PROJECT_NAME}
+            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stb/include/)
 ENDIF()
 
-target_include_directories(${CMAKE_PROJECT_NAME}
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/general/entt-3.4.0/src/)
+IF(OPENCV)
+    find_package( OpenCV REQUIRED )
+    include_directories("C:\\msys64\\mingw64\\include\\opencv4\\")
+    set(LIBS ${LIBS} ${OpenCV_LIBS})
+    #            set(LIBS ${LIBS} z)
+ENDIF()
 
-IF(PROTOBUF)
-    IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-        target_include_directories(${CMAKE_PROJECT_NAME}
-                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/win64/protobuf/include/)
+if(EMSCRIPTEN)
+    set(INCLUDEDIRS ${INCLUDEDIRS} c:/msys64/usr/local/emsdk/upstream/emscripten/cache/wasm/include/SDL2)
+endif()
 
-    ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-
-        target_include_directories(${CMAKE_PROJECT_NAME}
-                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/win64/protobuf/include/)
-
-    ELSE ()
-
-        target_include_directories(${CMAKE_PROJECT_NAME}
-                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/win64/protobuf/include/)
-
-    ENDIF ()
+IF(SERVER_ONLY)
+ELSE()
+    link_directories(${PROJECT_BINARY_DIR}/)
+    # lib blend2d
+    set(BLEND2D_DIR "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/blend2d"
+            CACHE PATH "Location of 'blend2d'")
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/blend2d/src/)
+    # Enable Blend2D static build.
+    set(BLEND2D_STATIC TRUE)
+    include("${BLEND2D_DIR}/CMakeLists.txt")
+    link_directories(${PROJECT_BINARY_DIR}/thirdparty/)
+    set(LIBS ${LIBS}   Blend2D::Blend2D)
 ENDIF()
 
 if (NOT WEB)
+    IF(SERVER_ONLY)
+    ELSE()
+    ADD_DEFINITIONS(-DSDL_BACKEND)
+    ENDIF()
     IF (WINDOWS)
         add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL")
         set(LIBS ${LIBS} SDL2::SDL2main SDL2::SDL2-static )
         IF(gcc)
-            set(LIBS ${LIBS} m user32 gdi32 winmm imm32 ole32 oleaut32 version uuid advapi32 setupapi shell32 dinput8 dxerr8)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -lmingw32 -Wl,--no-undefined -mwindows  -mconsole")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -lmingw32 -Wl,--no-undefined -mwindows -mconsole")
 
         ELSEIF(msvc)
-
-            #            include_directories(${CMAKE_PROJECT_NAME}
-            #                    PUBLIC ${PROJECT_BINARY_DIR}/thirdparty/SDL/include)
-            #
-            #            include_directories(${CMAKE_PROJECT_NAME}
-            #                    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
-            #            set(LIBS ${LIBS} user32 gdi32 winmm imm32 ole32 oleaut32 version uuid advapi32 setupapi shell32 dinput8 dxerr8)
         ENDIF()
-
-
-        #        set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} -mconsole")
-        #        target_link_libraries(${target_name} )
         include_directories(${CMAKE_PROJECT_NAME}
                 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
-    ELSEIF (LINUX)
+       ELSEIF (LINUX)
         find_package(SDL2)
         if (SDL2_FOUND)
             include_directories(${SDL2_INCLUDE_DIRS})
@@ -193,15 +137,9 @@ if (NOT WEB)
             include_directories(${CMAKE_PROJECT_NAME}
                     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
         endif()
-
-        #        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-rpath=/usr/lib/x86_64-linux-gnu/ -ludev")
-        #        set(LIBS ${LIBS} /usr/lib/x86_64-linux-gnu/libudev.so ${SDL2_LIBRARIES})
-        #        #        set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} -mconsole")
-        #        #        target_link_libraries(${target_name} )
-        #        include_directories(${CMAKE_PROJECT_NAME}
-        #                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/SDL/include)
     ELSEIF(ANDROID)
         add_subdirectory(thirdparty/SDL)
+
         find_library(SDL2 SDL2)
         set(LIBS ${LIBS} SDL2)
     ELSEIF(MACOS)
@@ -228,125 +166,99 @@ if (NOT WEB)
 ENDIF()
 
 
-IF(FMT)
-    IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-        target_include_directories(${CMAKE_PROJECT_NAME}
-                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/win64/fmt/include/)
 
-    ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-
-        target_include_directories(${CMAKE_PROJECT_NAME}
-                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/win64/fmt/include/)
-
-    ELSE ()
-        target_include_directories(${CMAKE_PROJECT_NAME}
-                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/win64/fmt/include/)
-
-    ENDIF ()
+IF(IOS)
+    ADD_DEFINITIONS(-DIOS)
+    ADD_DEFINITIONS(-DGLES_SILENCE_DEPRECATION)
+    set(RES ${RES} ${CMAKE_CURRENT_SOURCE_DIR}/data.0)
 ENDIF()
 
-IF (CMAKE_SYSTEM_NAME MATCHES "Windows") #target_link_libraries(MyExec PUBLIC "-static")//-fno-exceptions  -fdata-sections -ffunction-sections -Wl,-gc-sections -Wl,-strip-all
-    IF (USE_GCC)
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O -static -fdata-sections -ffunction-sections -Wl,-gc-sections -Wl,-strip-all ")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-        target_link_libraries(${CMAKE_PROJECT_NAME}
-                ${LIBS} )
-    ELSE ()
+IF(ANDROID)
+    add_library(${CMAKE_PROJECT_NAME} SHARED)
+    set(LIBS ${LIBS} GLESv3  log)
+    target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${CODEFILES})
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME "main" )
+ELSEIF(IOS)
+    add_executable(${CMAKE_PROJECT_NAME} ${CODEFILES} ${RES})
+ELSE()
+    add_executable(${CMAKE_PROJECT_NAME} ${CODEFILES})
+ENDIF()
 
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-        target_link_libraries(${CMAKE_PROJECT_NAME}
-                ${LIBS})
-    ENDIF ()
-ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    target_link_libraries(${CMAKE_PROJECT_NAME}
-            pthread
-            ${LIBS}
-            )
-ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    target_link_libraries(${CMAKE_PROJECT_NAME}
-            pthread
-            ${LIBS}
-            )
-    MESSAGE("MACOS")
-ELSEIF (IOS)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -DGLES_SILENCE_DEPRECATION)
-    target_link_libraries(${CMAKE_PROJECT_NAME}
-            pthread
-            ${LIBS}
-            )
-    #    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/ios")
-    #    add_executable(${CMAKE_PROJECT_NAME} MACOSX_BUNDLE main.cpp)
-    #        -Wl,-framework,AudioToolbox
-    #        -Wl,-framework,AVFoundation
-    #        -Wl,-framework,CoreAudio
-    #        -Wl,-framework,CoreBluetooth
-    #        -Wl,-framework,CoreGraphics
-    #        -Wl,-framework,CoreMotion
-    #        -Wl,-framework,Foundation
-    #        -Wl,-framework,GameController
-    #        -Wl,-framework,Metal
-    #        -Wl,-framework,OpenGLES
-    #        -Wl,-framework,QuartzCore
-    #        -Wl,-framework,UIKit
+IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    ADD_DEFINITIONS("-DNOMINMAX")
+    target_link_libraries(${CMAKE_PROJECT_NAME} ws2_32)
+ELSEIF(ANDROID)
+ELSE()
+    target_link_libraries(${CMAKE_PROJECT_NAME} pthread)
+ENDIF ()
+
+IF(IOS)
+
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
             XCODE_ATTRIBUTE_OTHER_LDFLAGS "${XCODE_ATTRIBUTE_OTHER_LDFLAGS}
             -framework AudioToolbox
--framework AudioToolbox
--framework AVFoundation
--framework CoreAudio
--framework CoreBluetooth
--framework CoreGraphics
--framework CoreMotion
--framework Foundation
--framework CoreFoundation
--framework GameController
--framework Metal
--framework OpenGLES
--framework QuartzCore
--framework UIKit
-
+            -framework AudioToolbox
+            -framework AVFoundation
+            -framework CoreAudio
+            -framework CoreBluetooth
+            -framework CoreGraphics
+            -framework CoreMotion
+            -framework Foundation
+            -framework CoreFoundation
+            -framework GameController
+            -framework Metal
+            -framework OpenGLES
+            -framework QuartzCore
+            -framework UIKit
 ")
-
-    #set(bundle_resources ${JUCER_ICON_FILE})
-    #if(IOS)
-    #list(APPEND RES
-    #${JUCER_XCASSETS} ${JUCER_LAUNCH_STORYBOARD_FILE}
-    #)
-    #endif()
-
-    #set_source_files_properties(${RES} PROPERTIES
-    #MACOSX_PACKAGE_LOCATION "Resources"
-    #)
-    #source_group("Resources" FILES ${RES})
 
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
             MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ios/MacOSXBundleInfo.plist.in
             MACOSX_BUNDLE ON
             MACOSX_BUNDLE_BUNDLE_NAME ${CMAKE_PROJECT_NAME}
-            MACOSX_BUNDLE_GUI_IDENTIFIER com.myname.${CMAKE_PROJECT_NAME}
-            MACOSX_FRAMEWORK_IDENTIFIER com.myname.${CMAKE_PROJECT_NAME}
-            MACOSX_BUNDLE_BUNDLE_IDENTIFIER com.myname.${CMAKE_PROJECT_NAME}
+            MACOSX_BUNDLE_GUI_IDENTIFIER com.caspasex13.${CMAKE_PROJECT_NAME}
+            MACOSX_FRAMEWORK_IDENTIFIER com.caspasex13.${CMAKE_PROJECT_NAME}
+            MACOSX_BUNDLE_BUNDLE_IDENTIFIER com.caspasex13.${CMAKE_PROJECT_NAME}
             MACOSX_BUNDLE_SHORT_VERSION_STRING "123"
             MACOSX_BUNDLE_LONG_VERSION_STRING "456"
             MACOSX_BUNDLE_BUNDLE_VERSION "123"
-            RESOURCE "${RES2}"
+            RESOURCE "${RES}"
+            XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
             #MACOSX_BUNDLE_ICON_FILE glfw.icns
             )
-    MESSAGE("IOS")
-ENDIF ()
+ENDIF()
+target_include_directories(${CMAKE_PROJECT_NAME}
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/spdlog/include/)
 
+target_link_libraries(${CMAKE_PROJECT_NAME} ${CMAKE_DL_LIBS} ${LIBS})
+target_include_directories(${CMAKE_PROJECT_NAME}
+        PUBLIC ${INCLUDEDIRS})
+
+IF(msvc)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8 ")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /utf-8")
+    #    target_compile_definitions(foo PUBLIC /wd4101)
+ELSE()
+
+ENDIF()
+IF(msvc)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
+    set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} /Od")
+ELSE()
+    set(CMAKE_CXX_FLAGS_RELEASE "-static ${CMAKE_CXX_FLAGS_RELEASE} -O3")
+    set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} -g")
+ENDIF()
+
+#add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E
+#        copy ${CMAKE_CURRENT_SOURCE_DIR}/data.0 ${CMAKE_CURRENT_SOURCE_DIR}/../AS/app/src/main/assets/data.0)
+#add_custom_command(TARGET ${CMAKE_PROJECT_NAME} PRE_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E
+#        copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Script ${PROJECT_BINARY_DIR}/script)
 
 if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DIMGUI_IMPL_OPENGL_ES3")
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_FLAGS
-            "-s ASYNCIFY=1 -s USE_SDL=2  -s MAX_WEBGL_VERSION=2 -s ALLOW_MEMORY_GROWTH=1 --preload-file data.0 -O --closure 1 -s FULL_ES3=1")
+            "-s ASYNCIFY=1 -s USE_SDL=2 -s USE_WEBGL2=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 --preload-file data.0 -O2 --closure 1 -s FULL_ES3=1 --shell-file shell_minimal.html")
     # -s ERROR_ON_UNDEFINED_SYMBOLS=0  -s USE_GLFW=3 -s USE_SDL=2 -s FULL_ES3=1 -s FULL_ES2=1 -s USE_WEBGL2=1  --preload-file data.0 --shell-file shell_minimal.html -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2
 endif()
