@@ -840,7 +840,7 @@ void TextLayout::onDrag(double x, double y) {
     this->hitPos2 = pos[0];
 
     if(x > this->pageW){
-        int val = 10;
+        int val = 6;
 //        int absVal = std::abs(val);
 //        for (int i = 0; i < absVal; i++) {
 //            this->pageMovePixel(-val / absVal * 7);
@@ -848,7 +848,7 @@ void TextLayout::onDrag(double x, double y) {
         xOffset-=val;
     }
     if(x < 0){
-        int val = 10;
+        int val = 6;
 //        int absVal = std::abs(val);
 //        for (int i = 0; i < absVal; i++) {
 //            this->pageMovePixel(-val / absVal * 7);
@@ -856,7 +856,7 @@ void TextLayout::onDrag(double x, double y) {
         xOffset+=val;
     }
     if(y > this->pageH){
-        int val = -10;
+        int val = -6;
         int absVal = std::abs(val);
         for (int i = 0; i < absVal; i++) {
             this->pageMovePixel(-val / absVal * 7);
@@ -866,7 +866,7 @@ void TextLayout::onDrag(double x, double y) {
         }
     }
     if(y < 0){
-        int val = 10;
+        int val = 6;
         int absVal = std::abs(val);
         for (int i = 0; i < absVal; i++) {
             this->pageMovePixel(-val / absVal * 7);

@@ -72,7 +72,7 @@ public:
     int blink_time = 0;
     UIFont* font = nullptr;
     int MoveOffsetTag = -1;
-    bool autoChangeLine = false;
+    bool autoChangeLine = true;
     struct Pos {
         void init() {
             int id = 0;

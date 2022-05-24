@@ -514,11 +514,40 @@ int EditBox::draw(int64_t tick) {
             Pos2.pos.realLineNumber = this->tl.ViewEyeTextEndLine;
             Pos2.pos.subLineNumber = this->tl.ViewEyeTextEndSubLine;
             if (PosLineGTE(this->tl.hitPos2, Pos1) && PosLineLTE(this->tl.hitPos2, Pos2))
+            {
                 canvas.drawLine(pageOffsetX+this->tl.hitPos2.LineOffsetPixelX,
                                 pageOffsetY+this->tl.hitPos2.LineOffsetPixelY - this->tl.yOffset,
                                 pageOffsetX+this->tl.hitPos2.LineOffsetPixelX,
                                 pageOffsetY+this->tl.hitPos2.LineOffsetPixelY - this->tl.yOffset +
-                                         this->tl.hitPos2.LineHeightPixel);
+                                this->tl.hitPos2.LineHeightPixel);
+            }
+
+        }else if(end2ToE){
+            canvas.setStrokeWidth(2.0);
+
+            canvas.setStrokeStyle(0xFFFF0000);
+            TextLayout::PosEx Pos1;
+            Pos1.pos.realLineNumber = this->tl.ViewEyeTextBeginLine;
+            Pos1.pos.subLineNumber = this->tl.ViewEyeTextBeginSubLine;
+            TextLayout::PosEx Pos2;
+            Pos2.pos.realLineNumber = this->tl.ViewEyeTextEndLine;
+            Pos2.pos.subLineNumber = this->tl.ViewEyeTextEndSubLine;
+            if (PosLineGTE(this->tl.hitPos2, Pos1) && PosLineLTE(this->tl.hitPos2, Pos2))
+            {
+                auto fireLineRectStartX = (pageOffsetX + startPos.LineOffsetPixelX);
+
+                auto w = (double) this->collider.w;
+
+                if (tl.xOffset<0 && -tl.xOffset > startPos.LineOffsetPixelX) {
+                    fireLineRectStartX = ax;
+                    w = this->collider.w;
+                }
+                canvas.drawLine(fireLineRectStartX,
+                                pageOffsetY+this->tl.hitPos2.LineOffsetPixelY - this->tl.yOffset,
+                                fireLineRectStartX,
+                                pageOffsetY+this->tl.hitPos2.LineOffsetPixelY - this->tl.yOffset +
+                                this->tl.hitPos2.LineHeightPixel);
+            }
         }
 
 
