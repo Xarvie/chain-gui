@@ -20,7 +20,7 @@ public:
     void setCanvasSize(int w, int h);
     UIFont* getFont(const std::string str, int fontSize);
 
-    std::set<UIWindow*, Cmp> rootWindows;
+    std::set<UIWindow*, WindowCmp> rootWindows;
 
     WindowCollision wc;
     static int64_t timeNow();

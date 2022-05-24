@@ -87,7 +87,9 @@ public:
     virtual void onResize(int newSizeW, int newSizeH){};
     virtual void onWindowResize(int newSizeW, int newSizeH){};
     virtual void onInputText(const std::string& str){};
-    virtual void onFocus(bool isLoseFocus){this->focus = !isLoseFocus;};
+    virtual void onFocus(bool focus_){
+        this->focus = focus_;
+    };
     bool dragable = true;
     bool isPress = false;
     int pressPosX = 0;
@@ -100,12 +102,12 @@ class BaseControl : public UIControlEvent {
 public:
     Box *parent;
     std::string title;
-    int64_t id;
+    int64_t id = 0;
     Collider collider;
     double ax = 0.0;
     double ay = 0.0;
-    int layer;
-    int isInit;
+    int layer = 0;
+    int isInit = 0;
     bool drawBound_ = false;
     bool colliderOn = true;
 
@@ -141,6 +143,19 @@ struct Cmp {
     }
 };
 
+struct WindowCmp {
+    bool operator()(const BaseControl *left, const BaseControl *right) const {
+        return cmp(*left, *right);
+    }
+
+    static bool cmp(const BaseControl &left, const BaseControl &right) {
+        if (right.id == left.id)
+            return false;
+        if (right.layer != left.layer)
+            return right.layer < left.layer;
+        return right.id < left.id;
+    }
+};
 class Box : public BaseControl {
 public:
     virtual int init(Box *parent, int x = 0, int y = 0, int w = 800, int h = 800);
@@ -215,7 +230,7 @@ public:
     virtual void onMouseWheel(int val);
     virtual void onMouseDrag(int x, int y, int gx, int gy);
     virtual void onInputText(const std::string& str);
-    virtual void onFocus(bool isLoseFocus);
+    virtual void onFocus(bool focus_);
     virtual void setPos(int x, int y);
     virtual void setSize(int w, int h);
 

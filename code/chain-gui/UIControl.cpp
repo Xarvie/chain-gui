@@ -337,7 +337,6 @@ int EditBox::draw(int64_t tick) {
         canvas.fillAll();
     }
 
-
     double showHeight = 0;
     std::vector<std::string> strings;
     for (auto it = this->tl.cacheLineIterator; it != this->tl.lineTextList.end(); it++) {
@@ -369,32 +368,51 @@ int EditBox::draw(int64_t tick) {
     bool start1To2 = startPos >= view1 && startPos <= view2;
     bool end1To2 = endPos >= view1 && endPos <= view2;
     bool end2ToE = endPos > view2;
-
+    auto pageOffsetX = ax+tl.xOffset;
+    auto pageOffsetY = ay;
     if (this->focus && start1To2 && end1To2) {
         if (startPos.LineOffsetPixelY != endPos.LineOffsetPixelY && startPos != endPos) {
             {
-                canvas.data.ctx.fillRect(startPos.LineOffsetPixelX,
-                                                  startPos.LineOffsetPixelY - this->tl.yOffset,
-                                                  (double) this->collider.w + (double) this->ax -
-                                                  startPos.LineOffsetPixelX,
-                                                  startPos.LineHeightPixel + 0.5);
+                {
+                    auto fireLineRectStartX = (pageOffsetX + startPos.LineOffsetPixelX);
+
+                    auto w = (double) this->collider.w;
+
+                    if (tl.xOffset<0 && -tl.xOffset > startPos.LineOffsetPixelX) {
+                        fireLineRectStartX = ax;
+                        w = this->collider.w;
+                    }
+                    canvas.drawRectFilled(fireLineRectStartX,
+                                          ay + startPos.LineOffsetPixelY - this->tl.yOffset,
+                                          fireLineRectStartX+w,
+                                          startPos.LineHeightPixel + 0.5);
+                }
                 if (endPos.LineOffsetPixelY != startPos.LineOffsetPixelY + startPos.LineHeightPixel)
-                    canvas.data.ctx.fillRect(0, startPos.LineOffsetPixelY - this->tl.yOffset +
-                                                         startPos.LineHeightPixel,
-                                                      (double) this->collider.w,
-                                                      (endPos.LineOffsetPixelY - this->tl.yOffset) -
-                                                      (startPos.LineOffsetPixelY - this->tl.yOffset) -
-                                                      startPos.LineHeightPixel + 0.5);
+                {
+                    auto fireLineRectStartX = pageOffsetX;
+                    if(tl.xOffset < 0) {
+                        fireLineRectStartX = ax;
+                    }
+                        canvas.drawRectFilled(fireLineRectStartX, ay+startPos.LineOffsetPixelY - this->tl.yOffset +
+                                                             startPos.LineHeightPixel,
+                                              (double) this->collider.w,
+                                              (endPos.LineOffsetPixelY - this->tl.yOffset) -
+                                              (startPos.LineOffsetPixelY - this->tl.yOffset) -
+                                              startPos.LineHeightPixel + 0.5);
+
+                }
+
+
                 if (endPos.LineHeightPixel + endPos.LineOffsetPixelY - this->tl.yOffset > 0)
-                    canvas.data.ctx.fillRect(0, endPos.LineOffsetPixelY - this->tl.yOffset,
+                    canvas.drawRectFilled(pageOffsetX+0, ay+endPos.LineOffsetPixelY - this->tl.yOffset,
                                                       endPos.LineOffsetPixelX,
                                                       endPos.LineHeightPixel);
             }
 
         } else {
             if (startPos != endPos)
-                canvas.data.ctx.fillRect(startPos.LineOffsetPixelX,
-                                                  startPos.LineOffsetPixelY - this->tl.yOffset,
+                canvas.drawRectFilled(pageOffsetX+startPos.LineOffsetPixelX,
+                                                  ay+startPos.LineOffsetPixelY - this->tl.yOffset,
                                                   endPos.LineOffsetPixelX - startPos.LineOffsetPixelX,
                                                   startPos.LineHeightPixel);
         }
@@ -402,17 +420,21 @@ int EditBox::draw(int64_t tick) {
     if (this->focus && startBTo1 && end1To2) {
         if (!PosLinEQ(startPos, endPos) || startPos.LineOffsetPixelY != endPos.LineOffsetPixelY) {
             {
-                canvas.data.ctx.fillRect(0, 0,
+                auto fireLineRectStartX = pageOffsetX;
+                if(tl.xOffset < 0) {
+                    fireLineRectStartX = ax;
+                }
+                canvas.drawRectFilled(fireLineRectStartX, pageOffsetY+0,
                                                   (double) this->collider.w,
                                                   endPos.LineOffsetPixelY - this->tl.yOffset + 0.5);
                 if (endPos.LineHeightPixel + endPos.LineOffsetPixelY - this->tl.yOffset > 0)
-                    canvas.data.ctx.fillRect(0, endPos.LineOffsetPixelY - this->tl.yOffset,
+                    canvas.drawRectFilled(pageOffsetX+0, ay+endPos.LineOffsetPixelY - this->tl.yOffset,
                                                       endPos.LineOffsetPixelX,
                                                       endPos.LineHeightPixel);
             }
 
         } else {
-            canvas.data.ctx.fillRect(startPos.LineOffsetPixelX, startPos.LineOffsetPixelY - this->tl.yOffset,
+            canvas.drawRectFilled(pageOffsetX+startPos.LineOffsetPixelX, ay+startPos.LineOffsetPixelY - this->tl.yOffset,
                                               endPos.LineOffsetPixelX - startPos.LineOffsetPixelX,
                                               startPos.LineHeightPixel);
         }
@@ -421,30 +443,42 @@ int EditBox::draw(int64_t tick) {
         if (!PosLinEQ(startPos, endPos) || startPos.LineOffsetPixelY != endPos.LineOffsetPixelY) {
             {
 
-                canvas.data.ctx.fillRect(startPos.LineOffsetPixelX,
-                                                  startPos.LineOffsetPixelY - this->tl.yOffset,
-                                                  (double) this->collider.w + (double) this->ax -
-                                                  startPos.LineOffsetPixelX,
-                                                  startPos.LineHeightPixel + 0.5);
+                {
+                    auto fireLineRectStartX = (pageOffsetX + startPos.LineOffsetPixelX);
 
+                    auto w = (double) this->collider.w;
+
+                    if (tl.xOffset<0 && -tl.xOffset > startPos.LineOffsetPixelX) {
+                        fireLineRectStartX = ax;
+                        w = this->collider.w;
+                    }
+                    canvas.drawRectFilled(fireLineRectStartX ,
+                                          ay + startPos.LineOffsetPixelY - this->tl.yOffset,
+                                          fireLineRectStartX+w,
+                                          startPos.LineHeightPixel + 0.5);
+                }
+                auto fireLineRectStartX = pageOffsetX;
+                if(tl.xOffset < 0) {
+                    fireLineRectStartX = ax;
+                }
                 if (endPos.LineOffsetPixelY != startPos.LineOffsetPixelY + startPos.LineHeightPixel)
-                    canvas.data.ctx.fillRect(0, startPos.LineOffsetPixelY - this->tl.yOffset +
+                    canvas.drawRectFilled(fireLineRectStartX, ay+startPos.LineOffsetPixelY - this->tl.yOffset +
                                                          startPos.LineHeightPixel,
-                                                      (double) this->collider.w,
+                                                      (double) this->collider.w+std::max(fireLineRectStartX, 0.0),
                                                       (double) this->collider.h - startPos.LineHeightPixel +
                                                       this->tl.yOffset
                     );
             }
 
         } else {
-            canvas.data.ctx.fillRect(startPos.LineOffsetPixelX, startPos.LineOffsetPixelY - this->tl.yOffset,
+            canvas.drawRectFilled(pageOffsetX+startPos.LineOffsetPixelX, ay+startPos.LineOffsetPixelY - this->tl.yOffset,
                                               endPos.LineOffsetPixelX - startPos.LineOffsetPixelX,
                                               startPos.LineHeightPixel);
         }
     }
     if (this->focus && startBTo1 && end2ToE) {
 
-        canvas.data.ctx.fillRect(0, 0,
+        canvas.drawRectFilled(pageOffsetX+0, pageOffsetY+0,
                                           (double) this->collider.w,
                                           (double) this->collider.h);
     }
@@ -480,10 +514,10 @@ int EditBox::draw(int64_t tick) {
             Pos2.pos.realLineNumber = this->tl.ViewEyeTextEndLine;
             Pos2.pos.subLineNumber = this->tl.ViewEyeTextEndSubLine;
             if (PosLineGTE(this->tl.hitPos2, Pos1) && PosLineLTE(this->tl.hitPos2, Pos2))
-                canvas.drawLine(this->tl.hitPos2.LineOffsetPixelX,
-                                         this->tl.hitPos2.LineOffsetPixelY - this->tl.yOffset,
-                                         this->tl.hitPos2.LineOffsetPixelX,
-                                         this->tl.hitPos2.LineOffsetPixelY - this->tl.yOffset +
+                canvas.drawLine(pageOffsetX+this->tl.hitPos2.LineOffsetPixelX,
+                                pageOffsetY+this->tl.hitPos2.LineOffsetPixelY - this->tl.yOffset,
+                                pageOffsetX+this->tl.hitPos2.LineOffsetPixelX,
+                                pageOffsetY+this->tl.hitPos2.LineOffsetPixelY - this->tl.yOffset +
                                          this->tl.hitPos2.LineHeightPixel);
         }
 
@@ -680,8 +714,8 @@ void EditBox::onInputText(const std::string &str) {
     this->tl.input(str);
 }
 
-void EditBox::onFocus(bool isLoseFocus) {
-    BaseControl::onFocus(isLoseFocus);
+void EditBox::onFocus(bool focus_) {
+    BaseControl::onFocus(focus_);
     this->setDirty(true);
 }
 
@@ -722,30 +756,74 @@ void UIEvent::evQuit(){
 }
 
 void UIEvent::evKey(int action, int key){
-
+    auto gui = ChainGui::get();
+    if (!gui->curControl)
+        return;
+    if(action == ACTION_DOWN)
+        gui->curControl->onKeyDown(key);
+    else if(action == ACTION_UP)
+        gui->curControl->onKeyUp(key);
 }
 
 void UIEvent::evMouse(int action, int button, int x, int y){
     auto gui = ChainGui::get();
     if(action == ACTION_MOVE){
-        gui->curControl = (BaseControl *) gui->getWidgetByPoint(x, y);
-        if(gui->curControl)
-            gui->curControl->drawBound_ = true;
+        if(gui->curControl) {
+            if(gui->curControl->isPress){
+                int newX = 0;
+                int newY = 0;
+                SDL_GetGlobalMouseState(&newX, &newY);
+                gui->curControl->onMouseDrag(x, y, newX, newY);
+            }
+
+        }
 
     }else if(action == ACTION_DOWN){
         SDL_CaptureMouse(SDL_TRUE);
         if(button == BUTTON_LEFT){
-            gui->curControl = (BaseControl *) gui->getWidgetByPoint(x, y);
-            if(gui->curControl)
+
+            auto control = (BaseControl *) gui->getWidgetByPoint(x, y);
+            if(gui->curControl != control)
+            {
+                if(gui->curControl)
+                    gui->curControl->onFocus(false);
+                gui->curControl = control;
+                if(control){
+                    gui->curControl->onFocus(true);
+                }
+            }
+            if(gui->curControl){
                 gui->curControl->drawBound_ = true;
+                gui->curControl->isPress = true;
+                SDL_GetGlobalMouseState(&gui->curControl->pressPosX, &gui->curControl->pressPosY);
+                gui->curControl->onMouseLDown(x, y);
+            }
+
         }
     }else if(action == ACTION_UP){
         SDL_CaptureMouse(SDL_FALSE);
+//        if(gui->curControl == NULL){
+//            gui->curControl = (BaseControl *) gui->getWidgetByPoint(x, y);
+//            if(gui->curControl)
+//                gui->curControl->drawBound_ = true;
+//        }
+        if(button == BUTTON_LEFT){
+            if(gui->curControl) {
+                gui->curControl->isPress = false;
+                gui->curControl->onMouseLUp(x, y);
+            }
+        }
+
     }
 
 }
 
 void UIEvent::evInput(const std::string &str){
+    auto gui = ChainGui::get();
+    if (!gui->curControl)
+        return;
+
+    gui->curControl->onInputText(str);
 
 }
 

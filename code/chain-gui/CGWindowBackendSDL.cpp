@@ -6,7 +6,7 @@
 #include "CGWindowBackendSDL.h"
 
 void CGWindowBackendSDL::init() {
-
+    imeWindowInit();
 }
 
 void CGWindowBackendSDL::imeWindowInit() {
@@ -66,7 +66,7 @@ void CGWindowBackendSDL::pollEvent(void * event) {
             else if(action == ACTION_DOWN && ev.key.repeat){
                 action = ACTION_REPEAT_DOWN;
             }
-            evKey(key, action);
+            evKey(action, key);
             break;
         }
         case SDL_MOUSEMOTION:

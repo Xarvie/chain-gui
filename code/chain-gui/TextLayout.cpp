@@ -134,7 +134,8 @@ TextLayout::lineLayout(std::list<LineStruct>::iterator lineStructIt, int lineNum
         lineMaxHeight = std::max(lineMaxHeight,
                                  this->font_height);
 
-        if (curw + realWidth <= pageW) {
+
+        if (!autoChangeLine || curw + realWidth <= pageW) {
             curw += realWidth;
         } else {
             int offsetLen = oldW - widthLineStart;
@@ -606,6 +607,7 @@ TextLayout::PosEx TextLayout::getPos(double x, double y) {
     bool overEnd = false;
     auto it = cacheLineIterator;
     double viewOffsetY = 0;
+
     PosEx hitPos;
     hitPos.pos.realLineNumber = -1;
     hitPos.pos.subLineNumber = -1;
@@ -700,7 +702,7 @@ TextLayout::PosEx TextLayout::getPos(double x, double y) {
         }
     }
 
-    if (tinyCurIt != it->lineTextListAutoWidth.end()) {
+    if (it != this->lineTextList.end() && tinyCurIt != it->lineTextListAutoWidth.end()) {
         auto &lineStr = tinyCurIt->lineStr;
         if (!lineStr.empty()) {
             const char *twochars = &lineStr[0];
@@ -722,7 +724,7 @@ TextLayout::PosEx TextLayout::getPos(double x, double y) {
                 curW = w;
                 memcpy(&tlCodePoint, &codepoint, 4);
                 double width = this->textWidthMap[tlCodePoint];
-                if (x <= widthSum + width / 2.0) {
+                if (-this->xOffset+x <= widthSum + width / 2.0) {
                     hitPos.LineOffsetPixelX = widthSum;
                     hitPos.pos.subLineOffset = preW - oldW;
                     textPos += (preW - oldW);
@@ -811,6 +813,7 @@ void TextLayout::onMove(double x, double y) {
 
 void TextLayout::onDrag(double x, double y) {
     tag:
+
     TextLayout::PosEx hitPos = getPos(std::min(this->pageW, x), std::min(this->pageH, y));
     if (hitPos.pos.realLineNumber == -1)
         return;
@@ -835,6 +838,43 @@ void TextLayout::onDrag(double x, double y) {
     }
     pos[0].pos.subLineOffset = subTextPos[0];
     this->hitPos2 = pos[0];
+
+    if(x > this->pageW){
+        int val = 10;
+//        int absVal = std::abs(val);
+//        for (int i = 0; i < absVal; i++) {
+//            this->pageMovePixel(-val / absVal * 7);
+//        }
+        xOffset-=val;
+    }
+    if(x < 0){
+        int val = 10;
+//        int absVal = std::abs(val);
+//        for (int i = 0; i < absVal; i++) {
+//            this->pageMovePixel(-val / absVal * 7);
+//        }
+        xOffset+=val;
+    }
+    if(y > this->pageH){
+        int val = -10;
+        int absVal = std::abs(val);
+        for (int i = 0; i < absVal; i++) {
+            this->pageMovePixel(-val / absVal * 7);
+            if(this->yOffset < 7){
+                this->pageMovePixel(-this->yOffset);
+            }
+        }
+    }
+    if(y < 0){
+        int val = 10;
+        int absVal = std::abs(val);
+        for (int i = 0; i < absVal; i++) {
+            this->pageMovePixel(-val / absVal * 7);
+            if(this->yOffset < 7){
+                this->pageMovePixel(-this->yOffset);
+            }
+        }
+    }
 //	std::cout << "onDrag, Line " << hitPos.pos.realLineNumber << ":" << hitPos.pos.subLineNumber << ":"
 //			  << hitPos.pos.realLineOffset
 //			  << std::endl;
@@ -867,8 +907,10 @@ void TextLayout::modifyText(int lineBegin, int lineEnd, int beginPos, int endPos
 
         it = lineTextList.erase(it++);
 
-        lineTextList.insert(it--, insertText.begin(), insertText.end());
-		cacheLineIterator = lineTextList.begin();
+        lineTextList.insert(it, insertText.begin(), insertText.end());
+
+        it--;
+        cacheLineIterator = lineTextList.begin();
 		for (int i = 0; i < cacheLineNumber; i++) {
 			cacheLineIterator++;
 		}
