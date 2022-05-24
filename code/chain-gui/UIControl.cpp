@@ -732,7 +732,6 @@ void UIEvent::evMouse(int action, int button, int x, int y){
         if(gui->curControl)
             gui->curControl->drawBound_ = true;
 
-
     }else if(action == ACTION_DOWN){
         SDL_CaptureMouse(SDL_TRUE);
         if(button == BUTTON_LEFT){
@@ -743,8 +742,6 @@ void UIEvent::evMouse(int action, int button, int x, int y){
     }else if(action == ACTION_UP){
         SDL_CaptureMouse(SDL_FALSE);
     }
-
-
 
 }
 

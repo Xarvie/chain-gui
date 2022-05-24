@@ -80,7 +80,7 @@ void CGWindowBackendSDL::pollEvent(void * event) {
 
 
             if(ev.type == SDL_MOUSEBUTTONUP){
-                action = ACTION_DOWN;
+                action = ACTION_UP;;
                 x = ev.button.x;
                 y = ev.button.y;
                 if(ev.button.button == SDL_BUTTON_LEFT){
