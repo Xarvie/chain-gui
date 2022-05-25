@@ -756,6 +756,7 @@ TextLayout::PosEx TextLayout::getPos(double x, double y) {
 }
 
 void TextLayout::onLButtonDown(double x, double y, bool inner) {
+
     this->press = true;
     this->SelectVec.clear();
     TextLayout::PosEx hitPos = getPos(x, y);

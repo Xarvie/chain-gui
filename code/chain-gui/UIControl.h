@@ -57,6 +57,13 @@ public:
     int w;
     int h;
 };
+
+class UIImage{
+public:
+    Image image;
+};
+
+
 class UIEvent {
 public:
     UIEvent(){};
@@ -80,9 +87,9 @@ public:
     virtual void onMouseRUp(int x, int y){};
     virtual void onMouseMDown(int x, int y){};
     virtual void onMouseMUp(int x, int y){};
-    virtual void onKeyDown(int Key){};
+    virtual void onKeyDown(int Key, bool isRepeat){};
     virtual void onKeyUp(int Key){};
-    virtual void onMouseWheel(int val){};
+    virtual void onMouseWheel(int x, int y){};
     virtual void onMouseDrag(int x, int y, int gx, int gy){};
     virtual void onResize(int newSizeW, int newSizeH){};
     virtual void onWindowResize(int newSizeW, int newSizeH){};
@@ -96,9 +103,34 @@ public:
     int pressPosY = 0;
     bool focus = false;
 };
-
+enum ControlState{
+    CSNormal,
+    CSDisable,
+    CSHover,
+    CSPress
+};
 
 class BaseControl : public UIControlEvent {
+public:
+
+    virtual void setPos(int x, int y);
+
+    virtual void setSize(int w, int h);
+
+    virtual void calcClipRect();
+
+    virtual void calcColliderRect();
+
+    virtual int init(Box *parent);
+
+    virtual int draw(int64_t tick);
+
+    virtual int setImage(int idx, const std::string &file);
+
+    void drawBound();
+
+    int setDirty(bool dirty);
+
 public:
     Box *parent;
     std::string title;
@@ -109,24 +141,15 @@ public:
     int layer = 0;
     int isInit = 0;
     bool drawBound_ = false;
+    UIColor colorBound = 0xFFFF0000;
     bool colliderOn = true;
-
     bool highlightShow = false;
-
-    virtual void setPos(int x, int y);
-
-    virtual void setSize(int w, int h);
-
-    virtual void calcClipRect();
-    virtual int init(Box *parent);
-
-    virtual int draw(int64_t tick);
-
-    void drawBound();
-
-    int setDirty(bool dirty);
-
     UIRectF clipRect;
+    bool disable = false;
+    bool visible = true;
+    std::vector<UIImage> images = std::vector<UIImage>(6);
+    int imgIDX = ControlState::CSNormal;
+
 };
 
 struct Cmp {
@@ -163,7 +186,7 @@ public:
     static Box *create(Box *box, int x = 0, int y = 0, int w = 800, int h = 800);
 
     int draw(int64_t tick) override;
-
+    virtual void calcColliderRect();
     int resize(int w, int h);
 
     std::set<BaseControl *, Cmp> childControlMap;
@@ -175,17 +198,22 @@ public:
 
     int init(Box *parent, int x = 0, int y = 0, int w = 800, int h = 800) override;
 
-
-
     int draw(int64_t tick);
 
-//    void onMouseMove(int x, int y);
-//
-//    void onMouseLDown(int x, int y);
-//
-//    void onMouseLUp(int x, int y);
-//
-//    void onMouseDrag(int x, int y, int gx, int gy);
+    virtual void onMouseMove(int x, int y);
+    virtual void onMouseLDown(int x, int y);
+    virtual void onMouseLUp(int x, int y);
+    virtual void onMouseRDown(int x, int y);
+    virtual void onMouseRUp(int x, int y);
+    virtual void onMouseMDown(int x, int y);
+    virtual void onMouseMUp(int x, int y);
+    virtual void onKeyDown(int Key, bool isRepeat);
+    virtual void onKeyUp(int Key);
+    virtual void onMouseWheel(int x, int y);
+    virtual void onMouseDrag(int x, int y, int gx, int gy);
+    virtual void onInputText(const std::string& str);
+    virtual void onFocus(bool focus_);
+    virtual void onWindowResize(int newSizeW, int newSizeH);
 
     int resize(int x, int y);
 
@@ -196,28 +224,29 @@ public:
 
     UIColor color = 0;
 
+    bool mouseDragWindow = false;
+    double mouseDragWindowX = 0.0;
+    double mouseDragWindowY = 0.0;
+
+    double OldWindowX = 0.0;
+    double OldWindowY = 0.0;
 };
 #define TBOX
 #if defined(TBOX)
 class EditBox : public BaseControl {
 public:
-    bool ctrl = false;
-    bool alt = false;
-    bool shift = false;
-    bool win = false;
     EditBox();
 
     virtual ~EditBox();
 
     static EditBox *create(Box *parent, const std::string &text, int x, int y, int w, int h);
-
+    virtual void init(Box *parent, const std::string &text, int x, int y, int w, int h);
     int destroy();
 
     int draw(int64_t tick);
 
     int setFont(const std::string &fontName, float fontSize);
 
-    void textboxOnClick(int x, int y);
     virtual void onMouseMove(int x, int y);
     virtual void onMouseLDown(int x, int y);
     virtual void onMouseLUp(int x, int y);
@@ -225,16 +254,16 @@ public:
     virtual void onMouseRUp(int x, int y);
     virtual void onMouseMDown(int x, int y);
     virtual void onMouseMUp(int x, int y);
-    virtual void onKeyDown(int Key);
+    virtual void onKeyDown(int Key, bool isRepeat);
     virtual void onKeyUp(int Key);
-    virtual void onMouseWheel(int val);
+    virtual void onMouseWheel(int x, int y);
     virtual void onMouseDrag(int x, int y, int gx, int gy);
     virtual void onInputText(const std::string& str);
     virtual void onFocus(bool focus_);
+    virtual void onWindowResize(int newSizeW, int newSizeH);
+
     virtual void setPos(int x, int y);
     virtual void setSize(int w, int h);
-
-    void onWindowResize(int newSizeW, int newSizeH);
 
     std::string text;
     UIColor colorText;
@@ -243,14 +272,79 @@ public:
 
     int state;
     UIFont* font = nullptr;
-    bool mouseLState = false;
-    bool mouseMState = false;
-    bool mouseRState = false;
+
     int mouseLclickPosX = 0;
     int mouseLclickPosY = 0;
     Collider clickCollider;
     TextLayout tl;
 
+    bool ctrl = false;
+    bool alt = false;
+    bool shift = false;
+    bool win = false;
+    bool editAble = true;
+
+
 };
 #endif
+
+class UILabel : public EditBox{
+public:
+    static UILabel *create(Box *parent, const std::string &text, int x, int y, int w, int h);
+    virtual void onMouseMove(int x, int y);
+    virtual void onMouseLDown(int x, int y);
+    virtual void onMouseLUp(int x, int y);
+    virtual void onMouseRDown(int x, int y);
+    virtual void onMouseRUp(int x, int y);
+    virtual void onMouseMDown(int x, int y);
+    virtual void onMouseMUp(int x, int y);
+    virtual void onKeyDown(int Key, bool isRepeat);
+    virtual void onKeyUp(int Key);
+    virtual void onMouseWheel(int x, int y);
+    virtual void onMouseDrag(int x, int y, int gx, int gy);
+    virtual void onInputText(const std::string& str);
+    virtual void onFocus(bool focus_);
+    virtual void onWindowResize(int newSizeW, int newSizeH);
+};
+
+class UIButton : public EditBox{
+public:
+    static UIButton *create(Box *parent, const std::string &text, int x, int y, int w, int h);
+    virtual void onMouseMove(int x, int y);
+    virtual void onMouseLDown(int x, int y);
+    virtual void onMouseLUp(int x, int y);
+    virtual void onMouseRDown(int x, int y);
+    virtual void onMouseRUp(int x, int y);
+    virtual void onMouseMDown(int x, int y);
+    virtual void onMouseMUp(int x, int y);
+    virtual void onKeyDown(int Key, bool isRepeat);
+    virtual void onKeyUp(int Key);
+    virtual void onMouseWheel(int x, int y);
+    virtual void onMouseDrag(int x, int y, int gx, int gy);
+    virtual void onInputText(const std::string& str);
+    virtual void onFocus(bool focus_);
+    virtual void onWindowResize(int newSizeW, int newSizeH);
+};
+
+
+class UIImageBox : public EditBox{
+public:
+    static UIImageBox *create(Box *parent, const std::string &text, int x, int y, int w, int h);
+    virtual void onMouseMove(int x, int y);
+    virtual void onMouseLDown(int x, int y);
+    virtual void onMouseLUp(int x, int y);
+    virtual void onMouseRDown(int x, int y);
+    virtual void onMouseRUp(int x, int y);
+    virtual void onMouseMDown(int x, int y);
+    virtual void onMouseMUp(int x, int y);
+    virtual void onKeyDown(int Key, bool isRepeat);
+    virtual void onKeyUp(int Key);
+    virtual void onMouseWheel(int x, int y);
+    virtual void onMouseDrag(int x, int y, int gx, int gy);
+    virtual void onInputText(const std::string& str);
+    virtual void onFocus(bool focus_);
+    virtual void onWindowResize(int newSizeW, int newSizeH);
+
+
+};
 #endif //CHAIN_GUI_UICONTROL_H

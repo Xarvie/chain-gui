@@ -12,6 +12,14 @@ int idGen() {
     return id;
 }
 
+bool inRect(double x,double y,double l,double t,double r,double b){
+    return x >= l && x<=r && y >=t && y <= b;
+}
+
+bool inRect(double x,double y,const UIRectF& rect){
+    return x >= rect.l && x<=rect.r && y >=rect.t && y <= rect.b;
+}
+
 std::string m_replace(std::string strSrc,
                  const std::string &oldStr, const std::string &newStr, int count) {
     std::string strRet = strSrc;
@@ -138,6 +146,14 @@ int Box::draw(int64_t tick) {
     return 0;
 }
 
+void Box::calcColliderRect() {
+    BaseControl::calcColliderRect();
+    for (auto &E:this->childControlMap) {
+        E->calcColliderRect();
+    }
+
+}
+
 int Box::resize(int w, int h) {
     GET_GUI();
     this->collider.w = w;
@@ -146,6 +162,110 @@ int Box::resize(int w, int h) {
     canvas.data.h = h;
     return 0;
 }
+
+
+void UIEvent::evFinger(int action, int fingerID, float x, float y, float z){
+
+}
+
+void UIEvent::evQuit(){
+
+}
+
+void UIEvent::evKey(int action, int key){
+    auto gui = ChainGui::get();
+    if (!gui->curControl)
+        return;
+    if(action == ACTION_DOWN)
+        gui->curControl->onKeyDown(key, false);
+    else if(action == ACTION_REPEAT_DOWN)
+        gui->curControl->onKeyDown(key, true);
+    else if(action == ACTION_UP)
+        gui->curControl->onKeyUp(key);
+}
+
+void UIEvent::evMouse(int action, int button, int x, int y){
+    auto gui = ChainGui::get();
+    if(action == ACTION_MOVE){
+        auto control = (BaseControl *) gui->getWidgetByPoint(x, y);
+        if(control){
+            control->drawBound_ = true;
+            control->colorBound = 0xFFFF0000;
+        }
+
+        if(gui->curControl) {
+            gui->curControl->onMouseMove(x, y);
+            if(gui->curControl->isPress){
+                int newX = 0;
+                int newY = 0;
+                SDL_GetGlobalMouseState(&newX, &newY);
+                gui->curControl->onMouseDrag(x, y, newX, newY);
+            }
+
+        }
+
+    }else if(action == ACTION_DOWN){
+        SDL_CaptureMouse(SDL_TRUE);
+        if(button == BUTTON_LEFT){
+
+            auto control = (BaseControl *) gui->getWidgetByPoint(x, y);
+            if(gui->curControl != control)
+            {
+                if(gui->curControl)
+                    gui->curControl->onFocus(false);
+                gui->curControl = control;
+                if(control){
+                    gui->curControl->onFocus(true);
+                }
+            }
+            if(gui->curControl){
+                gui->curControl->drawBound_ = true;
+                gui->curControl->colorBound = 0xFFFFFF00;
+                gui->curControl->isPress = true;
+                SDL_GetGlobalMouseState(&gui->curControl->pressPosX, &gui->curControl->pressPosY);
+                gui->curControl->onMouseLDown(x, y);
+            }
+
+        }
+    }else if(action == ACTION_UP){
+        SDL_CaptureMouse(SDL_FALSE);
+//        if(gui->curControl == NULL){
+//            gui->curControl = (BaseControl *) gui->getWidgetByPoint(x, y);
+//            if(gui->curControl)
+//                gui->curControl->drawBound_ = true;
+//        }
+        if(button == BUTTON_LEFT){
+            if(gui->curControl) {
+                gui->curControl->isPress = false;
+                gui->curControl->onMouseLUp(x, y);
+            }
+        }
+
+    }else if(action == ACTION_WHEEL){
+        auto gui = ChainGui::get();
+        if (!gui->curControl)
+            return;
+
+        gui->curControl->onMouseWheel(x, y);
+
+    }
+
+}
+
+void UIEvent::evInput(const std::string &str){
+    auto gui = ChainGui::get();
+    if (!gui->curControl)
+        return;
+
+    gui->curControl->onInputText(str);
+
+}
+
+void UIEvent::evWindowResize(int w, int h){
+    auto gui = ChainGui::get();
+    gui->setCanvasSize(w, h);
+}
+
 
 UIWindow *UIWindow::create(Box *parent, const std::string &title, int x, int y, int w, int h) {
     auto *self = new UIWindow;
@@ -185,6 +305,99 @@ int UIWindow::draw(int64_t tick) {
     return 0;
 }
 
+void UIWindow::onMouseMove(int x, int y) {
+    if(disable)
+        return ;
+
+}
+
+
+void UIWindow::onMouseLUp(int x, int y) {
+    if(disable)
+        return ;
+
+    if(mouseDragWindow)
+        mouseDragWindow = false;
+}
+
+void UIWindow::onMouseLDown(int x, int y) {
+    if(disable)
+        return ;
+    UIRectF _dragTitleRect = {this->clipRect.l, this->clipRect.t, this->clipRect.r, this->clipRect.t+20.0};
+    auto dragTitleRect = rectFIntersection(_dragTitleRect, this->clipRect);
+    if(inRect(x, y, dragTitleRect))
+    {
+        mouseDragWindow = true;
+        mouseDragWindowX = x;
+        mouseDragWindowY = y;
+        OldWindowX = this->collider.x;
+        OldWindowY = this->collider.y;
+    }
+}
+
+void UIWindow::onMouseRDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by Right" << std::endl;
+}
+
+void UIWindow::onMouseRUp(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by Right" << std::endl;
+}
+
+void UIWindow::onMouseMDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Down by middle" << std::endl;
+}
+
+void UIWindow::onMouseMUp(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by middle" << std::endl;
+}
+
+void UIWindow::onMouseWheel(int x, int y) {
+    if(disable)
+        return ;
+}
+
+void UIWindow::onMouseDrag(int x, int y, int gx, int gy) {
+    if(disable)
+        return ;
+    if(mouseDragWindow){
+        auto distanceX = x - mouseDragWindowX;
+        auto distanceY = y - mouseDragWindowY;
+        this->setPos(OldWindowX + distanceX, OldWindowY + distanceY);
+    }
+}
+
+void UIWindow::onKeyDown(int Key, bool isRepeat) {
+    if(disable)
+        return ;
+
+}
+
+void UIWindow::onKeyUp(int Key) {
+    if(disable)
+        return ;
+}
+
+void UIWindow::onWindowResize(int newSizeW, int newSizeH) {
+
+}
+
+void UIWindow::onInputText(const std::string &str) {
+    if(disable)
+        return ;
+}
+
+void UIWindow::onFocus(bool focus_) {
+    BaseControl::onFocus(focus_);
+}
+
 int BaseControl::init(Box *parent) {
     GET_GUI();
     this->layer = 0;
@@ -216,18 +429,36 @@ void BaseControl::drawBound() {
     GET_GUI();
     if (!drawBound_)
         return;
+    unsigned char A = colorBound>>24 & 0xFF;
+    if(A>0)
+    {
+        this->setDirty(true);
+        if(A > 5)
+            A-=5;
+        else{
+            A = 0;
+        }
+
+    }
+
+    *((unsigned char*)&colorBound+3) = A;
     canvas.setStrokeWidth(4.0);
-    canvas.setStrokeStyle(0xFFFF0000);
+    canvas.setStrokeStyle(colorBound);
+
     canvas.drawRect(this->ax, this->ay, this->collider.w, this->collider.h);
-    drawBound_ = false;
+
 }
 
 void BaseControl::setPos(int x, int y) {
-    calcClipRect();
+    this->collider.x = x;
+    this->collider.y = y;
+    calcColliderRect();
 }
 
 void BaseControl::setSize(int w, int h) {
-    calcClipRect();
+    this->collider.w = w;
+    this->collider.w = w;
+    calcColliderRect();
 }
 
 void BaseControl::calcClipRect() {
@@ -244,6 +475,32 @@ void BaseControl::calcClipRect() {
     }
 }
 
+void BaseControl::calcColliderRect() {
+    GET_GUI();
+    this->ax = (parent ? parent->ax : 0) + this->collider.x;
+    this->ay = (parent ? parent->ay : 0) + this->collider.y;
+    calcClipRect();
+    gui->wc.removeAABB((AABBKey) this);
+    if (this->collider.w <= 0 || this->collider.h <= 0)
+        gui->wc.insertAABB((AABBKey)this, -1, -1,1, 1);
+    else
+        gui->wc.insertAABB((AABBKey)this, this->ax, this->ay, this->collider.w, this->collider.h);
+    gui->wc.updateAABB((AABBKey)this, this->clipRect.l, this->clipRect.t, this->clipRect.r-this->clipRect.l, this->clipRect.b-this->clipRect.t);
+}
+
+int BaseControl::setImage(int idx, const std::string &file) {
+    BLImage texture;
+    BLResult err = texture.readFromFile(file.c_str());
+
+    if (err) {
+        printf("Failed to load a texture (err=%u)\n", err);
+        return 1;
+    }
+
+    this->images[idx].image.img = texture;
+    return 0;
+}
+
 #if defined(TBOX)
 
 EditBox::EditBox() {
@@ -255,46 +512,7 @@ EditBox::~EditBox() {
 EditBox *EditBox::create(Box *parent, const std::string &text, int x, int y, int w, int h) {
     GET_GUI();
     auto *self = new EditBox;
-
-    self->text = text;
-    self->isInit = 1;
-    self->colorBkg = 0;
-    self->collider.x = x;
-    self->collider.y = y;
-    self->collider.w = w;
-    self->collider.h = h;
-    self->state = 0;
-    self->BaseControl::init(parent);
-
-    self->font = gui->defaultFont;
-    self->tl.loadString(text);
-    self->tl.font = self->font;
-    for (auto &E: self->tl.lineTextList) {
-        E.lineHeight = self->tl.font->fontSizeReal;
-    }
-    self->tl.yOffset = 0.0f;
-    self->tl.pageW = self->collider.w;
-    self->tl.pageH = self->collider.h;
-    self->tl.cacheLineNumber = 0;
-    for (int i = 0; i < self->tl.cacheLineNumber; i++) {
-        self->tl.cacheLineIterator++;
-    }
-
-    {
-        self->tl.font_height = double(self->tl.font->fm.ascent + self->tl.font->fm.descent + self->tl.font->fm.lineGap);
-        for (auto &E: self->tl.lineTextList) {
-            E.lineHeight = self->tl.font_height;
-        }
-    }
-
-    double allSize = 0;
-    self->tl.pageLayout(self->tl.cacheLineNumber, self->tl.lineTextList.size() - 1 - self->tl.cacheLineNumber, 0, 0,
-                        allSize);
-    self->tl.allSize = allSize;
-    if (allSize == 0) {
-        //        abort();
-    }
-    //    self->tl.pageMovePixel(-5.0);
+    self->init(parent, text, x, y, w, h);
 
     return self;
 }
@@ -327,6 +545,8 @@ int EditBox::setFont(const std::string &fontName, float fontSize) {
 }
 
 int EditBox::draw(int64_t tick) {
+    if(!this->visible)
+        return 0;
     GET_GUI();
 
     gui->canvas.clipDrawStart(clipRect.l, clipRect.t, clipRect.r-clipRect.l, clipRect.b-clipRect.t);
@@ -336,6 +556,20 @@ int EditBox::draw(int64_t tick) {
         canvas.setFillStyle(this->colorBkg);
         canvas.fillAll();
     }
+    switch(imgIDX)
+    {
+        case ControlState::CSNormal :
+        case ControlState::CSDisable :
+        case ControlState::CSHover :
+        case ControlState::CSPress : {
+            if(!this->images[imgIDX].image.img.empty())
+            {
+                canvas.drawImg(clipRect.l, clipRect.t, clipRect.r-clipRect.l, clipRect.b-clipRect.t, &this->images[imgIDX].image);
+            }
+            break;
+        }
+    }
+
 
     double showHeight = 0;
     std::vector<std::string> strings;
@@ -557,30 +791,21 @@ int EditBox::draw(int64_t tick) {
     return 0;
 }
 
-void EditBox::textboxOnClick(int x, int y) {
-//    this->window->setCurControl(this);
-    this->mouseLclickPosX = x;
-    this->mouseLclickPosY = y;
-
-    this->clickCollider = this->collider;
-    this->mouseLState = true;
-    int tinyLineNumber = 0;
-    int tinyLineHeight = 0;
-    int tinyLineYViewPos = 0;
-
-}
-
 void EditBox::onMouseMove(int x, int y) {
-
+    if(disable)
+        return ;
 }
 
 void EditBox::onMouseLUp(int x, int y) {
-    this->mouseLState = false;
+    if(disable)
+        return ;
+    
     this->tl.onLButtonUp(x - this->ax, y - this->ay);
-
 }
 
 void EditBox::onMouseLDown(int x, int y) {
+    if(disable)
+        return ;
 //    SDL_GetWindowPosition(this->window->sdlWindow, &this->window->OldWindowPosX, &this->window->OldWindowPosY);
     SDL_StartTextInput();
     SDL_Rect rect;
@@ -593,33 +818,47 @@ void EditBox::onMouseLDown(int x, int y) {
 }
 
 void EditBox::onMouseRDown(int x, int y) {
+    if(disable)
+        return ;
     std::cout << "EditBox Mouse Up by Right EditBox" << std::endl;
 }
 
 void EditBox::onMouseRUp(int x, int y) {
+    if(disable)
+        return ;
     std::cout << "EditBox Mouse Up by Right EditBox" << std::endl;
 }
 
 void EditBox::onMouseMDown(int x, int y) {
+    if(disable)
+        return ;
     std::cout << "EditBox Mouse Down by middle EditBox" << std::endl;
 }
 
 void EditBox::onMouseMUp(int x, int y) {
+    if(disable)
+        return ;
     std::cout << "EditBox Mouse Up by middle EditBox" << std::endl;
 }
 
-void EditBox::onMouseWheel(int val) {
-    int absVal = std::abs(val);
+void EditBox::onMouseWheel(int x, int y) {
+    if(disable)
+        return ;
+    int absVal = std::abs(y);
     for (int i = 0; i < absVal; i++) {
-        this->tl.pageMovePixel(-val / absVal * 7);
+        this->tl.pageMovePixel(-y / absVal * 7);
     }
 }
 
 void EditBox::onMouseDrag(int x, int y, int gx, int gy) {
+    if(disable)
+        return ;
     this->tl.onDrag(x - this->ax, y - this->ay);
 }
 
-void EditBox::onKeyDown(int Key) {
+void EditBox::onKeyDown(int Key, bool isRepeat) {
+    if(disable)
+        return ;
     switch (Key) {
         case SDLK_UP: {
             this->tl.up_move();
@@ -635,6 +874,10 @@ void EditBox::onKeyDown(int Key) {
         }
         case SDLK_RIGHT: {
             this->tl.right_move();
+            break;
+        }
+        case SDLK_RETURN: {
+            this->tl.input("\n");
             break;
         }
         case SDLK_BACKSPACE: {
@@ -717,6 +960,8 @@ void EditBox::onKeyDown(int Key) {
 }
 
 void EditBox::onKeyUp(int Key) {
+    if(disable)
+        return ;
     switch (Key) {
         case SDLK_LCTRL:
         case SDLK_RCTRL: {
@@ -740,6 +985,8 @@ void EditBox::onWindowResize(int newSizeW, int newSizeH) {
 }
 
 void EditBox::onInputText(const std::string &str) {
+    if(disable)
+        return ;
     this->tl.input(str);
 }
 
@@ -756,9 +1003,7 @@ void EditBox::setPos(int x, int y){
     int offsetY = y - this->collider.y;
     this->collider.x = x;
     this->collider.y = y;
-    this->ax = this->parent->ax + x;
-    this->ay = this->parent->ay + y;
-    this->calcClipRect();
+    this->calcColliderRect();
     gui->wc.updateAABB((AABBKey)this, this->clipRect.l, this->clipRect.t, this->clipRect.r-this->clipRect.l, this->clipRect.b-this->clipRect.t);
 }
 
@@ -766,97 +1011,306 @@ void EditBox::setSize(int w, int h) {
     GET_GUI();
     this->collider.w = w;
     this->collider.h = h;
-    this->calcClipRect();
-    gui->wc.removeAABB((AABBKey) this);
-    if (w <= 0 || h <= 0)
-        gui->wc.insertAABB((AABBKey)this, -1, -1,1, 1);
-    else
-        gui->wc.insertAABB((AABBKey)this, this->ax, this->ay, w, h);
-    gui->wc.updateAABB((AABBKey)this, this->clipRect.l, this->clipRect.t, this->clipRect.r-this->clipRect.l, this->clipRect.b-this->clipRect.t);
-}
-#endif
-
-void UIEvent::evFinger(int action, int fingerID, float x, float y, float z){
+    this->calcColliderRect();
 
 }
 
-void UIEvent::evQuit(){
+void EditBox::init(Box *parent, const std::string &text, int x, int y, int w, int h) {
+    GET_GUI();
 
-}
+    this->text = text;
+    this->isInit = 1;
+    this->colorBkg = 0;
+    this->collider.x = x;
+    this->collider.y = y;
+    this->collider.w = w;
+    this->collider.h = h;
+    this->state = 0;
+    this->BaseControl::init(parent);
 
-void UIEvent::evKey(int action, int key){
-    auto gui = ChainGui::get();
-    if (!gui->curControl)
-        return;
-    if(action == ACTION_DOWN)
-        gui->curControl->onKeyDown(key);
-    else if(action == ACTION_UP)
-        gui->curControl->onKeyUp(key);
-}
-
-void UIEvent::evMouse(int action, int button, int x, int y){
-    auto gui = ChainGui::get();
-    if(action == ACTION_MOVE){
-        if(gui->curControl) {
-            if(gui->curControl->isPress){
-                int newX = 0;
-                int newY = 0;
-                SDL_GetGlobalMouseState(&newX, &newY);
-                gui->curControl->onMouseDrag(x, y, newX, newY);
-            }
-
-        }
-
-    }else if(action == ACTION_DOWN){
-        SDL_CaptureMouse(SDL_TRUE);
-        if(button == BUTTON_LEFT){
-
-            auto control = (BaseControl *) gui->getWidgetByPoint(x, y);
-            if(gui->curControl != control)
-            {
-                if(gui->curControl)
-                    gui->curControl->onFocus(false);
-                gui->curControl = control;
-                if(control){
-                    gui->curControl->onFocus(true);
-                }
-            }
-            if(gui->curControl){
-                gui->curControl->drawBound_ = true;
-                gui->curControl->isPress = true;
-                SDL_GetGlobalMouseState(&gui->curControl->pressPosX, &gui->curControl->pressPosY);
-                gui->curControl->onMouseLDown(x, y);
-            }
-
-        }
-    }else if(action == ACTION_UP){
-        SDL_CaptureMouse(SDL_FALSE);
-//        if(gui->curControl == NULL){
-//            gui->curControl = (BaseControl *) gui->getWidgetByPoint(x, y);
-//            if(gui->curControl)
-//                gui->curControl->drawBound_ = true;
-//        }
-        if(button == BUTTON_LEFT){
-            if(gui->curControl) {
-                gui->curControl->isPress = false;
-                gui->curControl->onMouseLUp(x, y);
-            }
-        }
-
+    this->font = gui->defaultFont;
+    this->tl.loadString(text);
+    this->tl.font = this->font;
+    for (auto &E: this->tl.lineTextList) {
+        E.lineHeight = this->tl.font->fontSizeReal;
+    }
+    this->tl.yOffset = 0.0f;
+    this->tl.pageW = this->collider.w;
+    this->tl.pageH = this->collider.h;
+    this->tl.cacheLineNumber = 0;
+    for (int i = 0; i < this->tl.cacheLineNumber; i++) {
+        this->tl.cacheLineIterator++;
     }
 
+    {
+        this->tl.font_height = double(this->tl.font->fm.ascent + this->tl.font->fm.descent + this->tl.font->fm.lineGap);
+        for (auto &E: this->tl.lineTextList) {
+            E.lineHeight = this->tl.font_height;
+        }
+    }
+
+    double allSize = 0;
+    this->tl.pageLayout(this->tl.cacheLineNumber, this->tl.lineTextList.size() - 1 - this->tl.cacheLineNumber, 0, 0,
+                        allSize);
+    this->tl.allSize = allSize;
+    if (allSize == 0) {
+        //        abort();
+    }
+    //    this->tl.pageMovePixel(-5.0);
 }
 
-void UIEvent::evInput(const std::string &str){
-    auto gui = ChainGui::get();
-    if (!gui->curControl)
-        return;
+#endif
 
-    gui->curControl->onInputText(str);
+
+void UILabel::onMouseMove(int x, int y) {
+    if(disable)
+        return ;
+}
+
+void UILabel::onMouseLUp(int x, int y) {
+    if(disable)
+        return ;
+    
+}
+
+void UILabel::onMouseLDown(int x, int y) {
+    if(disable)
+        return ;
 
 }
 
-void UIEvent::evWindowResize(int w, int h){
-    auto gui = ChainGui::get();
-    gui->setCanvasSize(w, h);
+void UILabel::onMouseRDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "EditBox Mouse Up by Right EditBox" << std::endl;
+}
+
+void UILabel::onMouseRUp(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "EditBox Mouse Up by Right EditBox" << std::endl;
+}
+
+void UILabel::onMouseMDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "EditBox Mouse Down by middle EditBox" << std::endl;
+}
+
+void UILabel::onMouseMUp(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "EditBox Mouse Up by middle EditBox" << std::endl;
+}
+
+void UILabel::onMouseWheel(int x, int y) {
+    if(disable)
+        return ;
+}
+
+void UILabel::onMouseDrag(int x, int y, int gx, int gy) {
+    if(disable)
+        return ;
+
+}
+
+void UILabel::onKeyDown(int Key, bool isRepeat) {
+    if(disable)
+        return ;
+
+}
+
+void UILabel::onKeyUp(int Key) {
+    if(disable)
+        return ;
+}
+
+void UILabel::onWindowResize(int newSizeW, int newSizeH) {
+
+}
+
+void UILabel::onInputText(const std::string &str) {
+    if(disable)
+        return ;
+}
+
+void UILabel::onFocus(bool focus_) {
+    BaseControl::onFocus(focus_);
+}
+
+UILabel *UILabel::create(Box *parent, const std::string &text, int x, int y, int w, int h) {
+    GET_GUI();
+    auto *self = new UILabel;
+    self->init(parent, text, x, y, w, h);
+    return self;
+}
+
+
+void UIButton::onMouseMove(int x, int y) {
+    if(disable)
+        return ;
+}
+
+void UIButton::onMouseLUp(int x, int y) {
+    if(disable)
+        return ;
+
+#if defined(WIN32)
+    MessageBox(0, "title", "button Clicked", 0);
+#endif
+}
+
+void UIButton::onMouseLDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Down by Left" << std::endl;
+}
+
+void UIButton::onMouseRDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by Right" << std::endl;
+}
+
+void UIButton::onMouseRUp(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by Right" << std::endl;
+}
+
+void UIButton::onMouseMDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Down by middle" << std::endl;
+}
+
+void UIButton::onMouseMUp(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by middle" << std::endl;
+}
+
+void UIButton::onMouseWheel(int x, int y) {
+    if(disable)
+        return ;
+}
+
+void UIButton::onMouseDrag(int x, int y, int gx, int gy) {
+    if(disable)
+        return ;
+}
+
+void UIButton::onKeyDown(int Key, bool isRepeat) {
+    if(disable)
+        return ;
+
+}
+
+void UIButton::onKeyUp(int Key) {
+    if(disable)
+        return ;
+}
+
+void UIButton::onWindowResize(int newSizeW, int newSizeH) {
+
+}
+
+void UIButton::onInputText(const std::string &str) {
+    if(disable)
+        return ;
+}
+
+void UIButton::onFocus(bool focus_) {
+    BaseControl::onFocus(focus_);
+}
+
+UIButton *UIButton::create(Box *parent, const std::string &text, int x, int y, int w, int h) {
+    GET_GUI();
+    auto *self = new UIButton;
+    self->init(parent, text, x, y, w, h);
+    return self;
+}
+
+
+void UIImageBox::onMouseMove(int x, int y) {
+    if(disable)
+        return ;
+}
+
+void UIImageBox::onMouseLUp(int x, int y) {
+    if(disable)
+        return ;
+    
+}
+
+void UIImageBox::onMouseLDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Down by Left" << std::endl;
+}
+
+void UIImageBox::onMouseRDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by Right" << std::endl;
+}
+
+void UIImageBox::onMouseRUp(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by Right" << std::endl;
+}
+
+void UIImageBox::onMouseMDown(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Down by middle" << std::endl;
+}
+
+void UIImageBox::onMouseMUp(int x, int y) {
+    if(disable)
+        return ;
+    std::cout << "Mouse Up by middle" << std::endl;
+}
+
+void UIImageBox::onMouseWheel(int x, int y) {
+    if(disable)
+        return ;
+}
+
+void UIImageBox::onMouseDrag(int x, int y, int gx, int gy) {
+    if(disable)
+        return ;
+
+}
+
+void UIImageBox::onKeyDown(int Key, bool isRepeat) {
+    if(disable)
+        return ;
+
+}
+
+void UIImageBox::onKeyUp(int Key) {
+    if(disable)
+        return ;
+}
+
+void UIImageBox::onWindowResize(int newSizeW, int newSizeH) {
+
+}
+
+void UIImageBox::onInputText(const std::string &str) {
+    if(disable)
+        return ;
+}
+
+void UIImageBox::onFocus(bool focus_) {
+    BaseControl::onFocus(focus_);
+}
+
+UIImageBox *UIImageBox::create(Box *parent, const std::string &text, int x, int y, int w, int h) {
+    GET_GUI();
+    auto *self = new UIImageBox;
+    self->init(parent, text, x, y, w, h);
+    return self;
 }

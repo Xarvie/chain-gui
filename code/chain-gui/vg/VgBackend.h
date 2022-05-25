@@ -52,7 +52,6 @@ public:
 typedef BlendBackendFont UIFont;
 struct BlendBackendImage {
 	BLImage img;
-	bool empty = true;
 };
 
 typedef BlendBackendImage Image;

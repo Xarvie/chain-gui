@@ -11,9 +11,12 @@ const int ACTION_DOWN = 0;
 const int ACTION_UP = 1;
 const int ACTION_MOVE = 2;
 const int ACTION_REPEAT_DOWN = 3;
-const int BUTTON_LEFT = 0;
-const int BUTTON_MID = 0;
-const int BUTTON_RIGHT = 0;
+const int ACTION_WHEEL = 4;
+const int BUTTON_LEFT = 5;
+const int BUTTON_MID = 6;
+const int BUTTON_RIGHT = 7;
+
+
 
 class CGWindowBackendAPI {
 public:

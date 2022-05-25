@@ -181,8 +181,6 @@ public:
 
     void updateCursor();
 
-    void onResize();
-
     std::list<LineStruct>::iterator
     lineLayout(std::list<LineStruct>::iterator lineStructIt, int lineNumber, double pageW, bool writeData = true);
 
@@ -212,12 +210,13 @@ public:
 
     void pageMoveSubLine(int lineCount, double offsetX, double offsetY);
 
-
     void loadString(const std::string &str);
 
-    void onLButtonDown(double x, double y, bool inner = false);
-
     TextLayout::PosEx getPos(double x, double y);
+
+    void onResize();
+
+    void onLButtonDown(double x, double y, bool inner = false);
 
     void onLButtonUp(double x, double y);
 

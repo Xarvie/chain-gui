@@ -103,6 +103,8 @@ void CGWindowBackendSDL::pollEvent(void * event) {
                     button = BUTTON_RIGHT;
                 }
             }else if(ev.type == SDL_MOUSEWHEEL){
+                action = ACTION_WHEEL;
+                button = BUTTON_MID;
                 x = ev.wheel.x;
                 y = ev.wheel.y;
             }else if(ev.type == SDL_MOUSEMOTION){
