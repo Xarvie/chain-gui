@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
                                  50,70, 300, 360);
 
     auto label1 = UILabel::create(win1,
-                                  "label1",
+                                  "Cat",
                                   90+300,70, 150, 50);
     label1->setFont("SourceHanSans-Normal.otf", 50);
     auto button1 = UIButton::create(win1,

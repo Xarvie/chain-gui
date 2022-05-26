@@ -5,7 +5,7 @@
 #include "UIControl.h"
 #include "ChainGui.h"
 namespace Style{
-    UIColor COLOR_WINDOW_BACK = 0xDDf3f3f3;
+    UIColor COLOR_WINDOW_BACK = 0xEEf3f3f3;
     UIColor COLOR_WINDOW_BORDER = 0xFFafafaf;
     UIPos TITLE_TEXT_OFFSET = {20.0, 20.0};
     double TITLE_HEIGHT = 20.0;
@@ -861,6 +861,9 @@ void EditBox::onMouseWheel(int x, int y) {
     int absVal = std::abs(y);
     for (int i = 0; i < absVal; i++) {
         this->tl.pageMovePixel(-y / absVal * 7);
+        if(this->tl.yOffset < 7){
+            this->tl.pageMovePixel(-this->tl.yOffset);
+        }
     }
 }
 
