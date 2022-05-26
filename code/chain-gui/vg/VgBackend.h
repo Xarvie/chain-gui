@@ -193,11 +193,11 @@ public:
 	void drawLine(double x1, double y1, double x2, double y2) {
 		data.ctx.strokeLine(x1, y1, x2, y2);
 	}
-    void drawRect(double x, double y, double w, double h) {
-        data.ctx.strokeRect(x, y, w, h);
+    void drawRect(double x, double y, double w, double h, double r = 0.0) {
+        data.ctx.strokeRoundRect(x, y, w, h, r);
     }
-    void drawRectFilled(double x, double y, double w, double h) {
-        data.ctx.fillRect(x, y, w, h);
+    void drawRectFilled(double x, double y, double w, double h, double r = 0.0) {
+        data.ctx.fillRoundRect(x, y, w, h,r);
     }
     void drawCircleFilled(double x, double y, double r) {
         data.ctx.fillCircle(x, y, r);

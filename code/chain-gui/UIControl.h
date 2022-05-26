@@ -12,6 +12,7 @@
 #include "TextLayout.h"
 #include "CGWindowBackend.h"
 typedef unsigned int UIColor;
+typedef std::pair<double, double> UIPos;
 
 struct UIRectI {
     int l;
@@ -63,6 +64,13 @@ public:
     Image image;
 };
 
+namespace Style{
+    extern UIColor COLOR_WINDOW_BACK;
+    extern UIColor COLOR_WINDOW_BORDER;
+    extern UIPos TITLE_TEXT_OFFSET;
+    extern double TITLE_HEIGHT;
+    extern double EDIT_PAGE_MARGINS;
+};
 
 class UIEvent {
 public:

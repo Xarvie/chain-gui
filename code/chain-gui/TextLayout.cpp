@@ -839,43 +839,46 @@ void TextLayout::onDrag(double x, double y) {
     }
     pos[0].pos.subLineOffset = subTextPos[0];
     this->hitPos2 = pos[0];
+    if(!autoChangeLine)
+    {
+        if(x > this->pageW){
+            int val = 6;
+//        int absVal = std::abs(val);
+//        for (int i = 0; i < absVal; i++) {
+//            this->pageMovePixel(-val / absVal * 7);
+//        }
+            xOffset-=val;
+        }
+        if(x < 0){
+            int val = 6;
+//        int absVal = std::abs(val);
+//        for (int i = 0; i < absVal; i++) {
+//            this->pageMovePixel(-val / absVal * 7);
+//        }
+            xOffset+=val;
+        }
+        if(y > this->pageH){
+            int val = -6;
+            int absVal = std::abs(val);
+            for (int i = 0; i < absVal; i++) {
+                this->pageMovePixel(-val / absVal * 7);
+                if(this->yOffset < 7){
+                    this->pageMovePixel(-this->yOffset);
+                }
+            }
+        }
+        if(y < 0){
+            int val = 6;
+            int absVal = std::abs(val);
+            for (int i = 0; i < absVal; i++) {
+                this->pageMovePixel(-val / absVal * 7);
+                if(this->yOffset < 7){
+                    this->pageMovePixel(-this->yOffset);
+                }
+            }
+        }
+    }
 
-    if(x > this->pageW){
-        int val = 6;
-//        int absVal = std::abs(val);
-//        for (int i = 0; i < absVal; i++) {
-//            this->pageMovePixel(-val / absVal * 7);
-//        }
-        xOffset-=val;
-    }
-    if(x < 0){
-        int val = 6;
-//        int absVal = std::abs(val);
-//        for (int i = 0; i < absVal; i++) {
-//            this->pageMovePixel(-val / absVal * 7);
-//        }
-        xOffset+=val;
-    }
-    if(y > this->pageH){
-        int val = -6;
-        int absVal = std::abs(val);
-        for (int i = 0; i < absVal; i++) {
-            this->pageMovePixel(-val / absVal * 7);
-            if(this->yOffset < 7){
-                this->pageMovePixel(-this->yOffset);
-            }
-        }
-    }
-    if(y < 0){
-        int val = 6;
-        int absVal = std::abs(val);
-        for (int i = 0; i < absVal; i++) {
-            this->pageMovePixel(-val / absVal * 7);
-            if(this->yOffset < 7){
-                this->pageMovePixel(-this->yOffset);
-            }
-        }
-    }
 //	std::cout << "onDrag, Line " << hitPos.pos.realLineNumber << ":" << hitPos.pos.subLineNumber << ":"
 //			  << hitPos.pos.realLineOffset
 //			  << std::endl;

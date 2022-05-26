@@ -4,6 +4,12 @@
 
 #include "UIControl.h"
 #include "ChainGui.h"
+namespace Style{
+    UIColor COLOR_WINDOW_BACK = 0xDDf3f3f3;
+    UIColor COLOR_WINDOW_BORDER = 0xFFafafaf;
+    UIPos TITLE_TEXT_OFFSET = {20.0, 20.0};
+    double TITLE_HEIGHT = 20.0;
+};
 
 #define GET_GUI() auto gui = ChainGui::get(); auto&canvas = gui->canvas
 int idGen() {
@@ -282,21 +288,29 @@ int UIWindow::init(Box *parent, int x, int y, int w, int h) {
     return Box::init(parent, x, y, w, h);
 }
 
+
+
 int UIWindow::draw(int64_t tick) {
     GET_GUI();
     gui->canvas.clipDrawStart(clipRect.l, clipRect.t, clipRect.r-clipRect.l, clipRect.b-clipRect.t);
-    canvas.setFillStyle(0xFF0000FF);
-    canvas.drawRectFilled(ax, ay, this->collider.w, this->collider.h);
+    canvas.setFillStyle(Style::COLOR_WINDOW_BACK);
+    canvas.drawRectFilled(ax, ay, this->collider.w, this->collider.h, 8);
 
-    canvas.setFillStyle(0xFF00FF00);
-    canvas.drawRectFilled(ax, ay, this->collider.w, 20);
+    canvas.setStrokeWidth(1.0);
+    canvas.setStrokeStyle(Style::COLOR_WINDOW_BORDER);
+    canvas.drawRect(ax, ay, this->collider.w, this->collider.h, 8.0);
+
+//    canvas.setFillStyle(0xFF00FF00);
+//    canvas.drawRectFilled(ax, ay, this->collider.w, 20);
 
     canvas.setFillStyle(0xFF000000);
     canvas.drawText(this->title.c_str()
-            , gui->defaultFont,this->ax+10,this->ay+1.0,100,100);
+            , gui->defaultFont,this->ax+Style::TITLE_TEXT_OFFSET.first,this->ay+Style::TITLE_TEXT_OFFSET.second,100,100);
     canvas.setFillStyle(0xFFF20202);
     canvas.drawCircleFilled(this->ax + this->collider.w - 10.0, ay + 10.0, 5);
 
+    canvas.setFillStyle(0xFF555555);
+    canvas.drawCircleFilled(this->ax + this->collider.w - 25.0, ay + 10.0, 5);
 
     Box::draw(tick);
     drawBound();

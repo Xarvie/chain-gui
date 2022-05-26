@@ -36,9 +36,9 @@ int main(int argc, char *argv[]) {
             w, h
     );
 
-    auto win1 = UIWindow::create(NULL, "window1", 50, 35, 800, 600);
+    auto win1 = UIWindow::create(NULL, "My Window", 50, 35, 800, 600);
     auto edit1 = EditBox::create(win1,
-                                 "I'm the star in the northern sky, I never stayed anywhere\n"
+                                 "  I'm the star in the northern sky, I never stayed anywhere\n"
                                  "我是北天一颗星辰，天涯海角无处停留\n"
                                  "Я звезда северного неба, я нигде не останавливался\n"
                                  "我是北天一顆星辰，天涯海角無處停留\n"
@@ -49,28 +49,28 @@ int main(int argc, char *argv[]) {
                                  "Eu sou a estrela no céu do norte, nunca fiquei em lugar nenhum\n"
                                  "Ngiyinkanyezi esibhakabhakeni sasenyakatho, angizange ngihlale ndawo\n"
                                  "Jaz sem zvezda na severnem nebu, nikoli nisem ostal nikjer\n",
-                                 30,30, 300, 360);
+                                 50,70, 300, 360);
 
     auto label1 = UILabel::create(win1,
                                   "label1",
-                                  50+300,30, 150, 40);
-
+                                  90+300,70, 150, 50);
+    label1->setFont("SourceHanSans-Normal.otf", 50);
     auto button1 = UIButton::create(win1,
-                                  "button1",
-                                    50+300,20+50, 150, 40);
+                                  "Message",
+                                    90+300,70+100, 150, 40);
 
     auto imageBox1 = UIImageBox::create(win1,
-                                    "imageBox1",
-                                        50+300,20+50+50, 140, 110);
+                                    "",
+                                        90+300,70+100+50, 140, 110);
     imageBox1->setImage(0, "../Res/image1.png");
     imageBox1->setImage(1, "../Res/image1.png");
     imageBox1->setImage(2, "../Res/image1.png");
     imageBox1->setImage(3, "../Res/image1.png");
     {
-        auto win2 = UIWindow::create(NULL, "window2", 500, 500, 250, 250);
+        auto win2 = UIWindow::create(NULL, "Pop", 500, 500, 250, 250);
         auto label1 = UILabel::create(win2,
-                                      "label1",
-                                      30,30, 150, 40);
+                                      "~~~~~~",
+                                      30,70, 150, 40);
     }
     while(true)
     {
