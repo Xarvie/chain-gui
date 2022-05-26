@@ -149,7 +149,7 @@ public:
     int layer = 0;
     int isInit = 0;
     bool drawBound_ = false;
-    UIColor colorBound = 0xFFFF0000;
+    UIColor colorBound = 0xFF4395ff;
     bool colliderOn = true;
     bool highlightShow = false;
     UIRectF clipRect;

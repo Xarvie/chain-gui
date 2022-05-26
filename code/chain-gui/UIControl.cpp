@@ -196,7 +196,7 @@ void UIEvent::evMouse(int action, int button, int x, int y){
         auto control = (BaseControl *) gui->getWidgetByPoint(x, y);
         if(control){
             control->drawBound_ = true;
-            control->colorBound = 0xFFFF0000;
+            control->colorBound = 0xFF4395ff;
         }
 
         if(gui->curControl) {
@@ -226,7 +226,7 @@ void UIEvent::evMouse(int action, int button, int x, int y){
             }
             if(gui->curControl){
                 gui->curControl->drawBound_ = true;
-                gui->curControl->colorBound = 0xFFFFFF00;
+                gui->curControl->colorBound = 0xFF0000ff;
                 gui->curControl->isPress = true;
                 SDL_GetGlobalMouseState(&gui->curControl->pressPosX, &gui->curControl->pressPosY);
                 gui->curControl->onMouseLDown(x, y);
@@ -456,7 +456,7 @@ void BaseControl::drawBound() {
     }
 
     *((unsigned char*)&colorBound+3) = A;
-    canvas.setStrokeWidth(4.0);
+    canvas.setStrokeWidth(1.0);
     canvas.setStrokeStyle(colorBound);
 
     canvas.drawRect(this->ax, this->ay, this->collider.w, this->collider.h);
