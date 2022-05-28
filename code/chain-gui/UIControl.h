@@ -64,13 +64,15 @@ public:
     Image image;
 };
 
-namespace Style{
-    extern UIColor COLOR_WINDOW_BACK;
-    extern UIColor COLOR_WINDOW_BORDER;
-    extern UIPos TITLE_TEXT_OFFSET;
-    extern double TITLE_HEIGHT;
-    extern double EDIT_PAGE_MARGINS;
+class UIStyle{
+public:
+    UIColor COLOR_WINDOW_BACK = 0xEEf3f3f3;
+    UIColor COLOR_WINDOW_BORDER = 0xFFafafaf;
+    UIPos TITLE_TEXT_OFFSET = {20.0, 20.0};
+    double TITLE_HEIGHT = 20.0;
 };
+
+extern UIStyle uiStyle;
 
 class UIEvent {
 public:
