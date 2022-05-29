@@ -13,6 +13,7 @@
 
 class ChainGui {
 public:
+    void setupIME();
     void init(int w, int h);
     static ChainGui * get();
     void pollEvent(void * event);
@@ -39,6 +40,10 @@ public:
     UIEvent ev;
     UIWindow* curWindow = nullptr;
     BaseControl* curControl = nullptr;
+
+    /////
+    UIWindow window1;
+    UIImageBox imageBox1;
 };
 
 

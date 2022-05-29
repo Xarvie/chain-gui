@@ -6,8 +6,11 @@
 #include "CGWindowBackend.h"
 #include "fnv1a.h"
 
-void ChainGui::init(int w, int h) {
+void ChainGui::setupIME(){
     windowMgr->init();
+}
+void ChainGui::init(int w, int h) {
+
     canvas.init(w, h);
     wc.init(10000, 10000);
     startTick = ChainGui::timeNow();
@@ -17,7 +20,7 @@ void ChainGui::init(int w, int h) {
 
     this->defaultFontSize = 16;
     defaultFontHash = int64_t(fnv32("SourceHanSans-Normal.otf")*1000+this->defaultFontSize);
-    std::string fontFile = "../Res/SourceHanSans-Normal.otf";
+    std::string fontFile = "Res/SourceHanSans-Normal.otf";
     auto & font = this->fontMap[defaultFontHash];
     this->defaultFont = &font;
     BLResult err = font.fontFace.createFromFile(fontFile.c_str());
@@ -45,7 +48,7 @@ UIFont* ChainGui::getFont(const std::string fontName, int fontSize) {
         auto defaultSizeFontHash = fnv32(fontName.c_str())*1000+this->defaultFontSize;
         auto fontDefaultIt = this->fontMap.find(defaultSizeFontHash);
 
-        std::string fontFile = std::string("../Res/")+fontName;
+        std::string fontFile = std::string("Res/")+fontName;
 
         auto & defaultSizeFont = this->fontMap[defaultSizeFontHash];
 
@@ -85,12 +88,14 @@ unsigned char* ChainGui::draw(){
     static std::string curFps = "";
     fps++;
     if(curTick - fpsCounter >= 1000){
-        curFps = std::string("FPS:")+std::to_string(fps);
+        curFps = std::string("uiFps:")+std::to_string(fps);
         fps = 0;
         fpsCounter = curTick;
     }
 
     canvas.drawBegin(NULL);
+//    canvas.setFillStyle(0xffffffff);
+//    canvas.fillAll();
     canvas.clear();
     clipRect = {0.0,0.0, (double)w, (double)h};
     for(auto window:this->rootWindows){
@@ -99,7 +104,7 @@ unsigned char* ChainGui::draw(){
 
     canvas.setFillStyle(0xFFFFFF00);
     canvas.drawText(curFps.c_str()
-            , getFont("SourceHanSans-Normal.otf", 40), 5,5,100,100);
+            , getFont("SourceHanSans-Normal.otf", 30), 5,5,100,100);
 
     canvas.drawEnd();
     return canvas.getPixels();

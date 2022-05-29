@@ -66,7 +66,7 @@ public:
 
 class UIStyle{
 public:
-    UIColor COLOR_WINDOW_BACK = 0xEEf3f3f3;
+    UIColor COLOR_WINDOW_BACK = 0x88f3f3f3;
     UIColor COLOR_WINDOW_BORDER = 0xFFafafaf;
     UIPos TITLE_TEXT_OFFSET = {20.0, 20.0};
     double TITLE_HEIGHT = 20.0;

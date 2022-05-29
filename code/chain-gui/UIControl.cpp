@@ -292,23 +292,17 @@ int UIWindow::draw(int64_t tick) {
     GET_GUI();
     gui->canvas.clipDrawStart(clipRect.l, clipRect.t, clipRect.r-clipRect.l, clipRect.b-clipRect.t);
     canvas.setFillStyle(uiStyle.COLOR_WINDOW_BACK);
-    canvas.drawRectFilled(ax, ay, this->collider.w, this->collider.h, 8);
+    canvas.drawRectFilled(ax, ay, this->collider.w, this->collider.h, 0);
 
     canvas.setStrokeWidth(1.0);
     canvas.setStrokeStyle(uiStyle.COLOR_WINDOW_BORDER);
-    canvas.drawRect(ax, ay, this->collider.w, this->collider.h, 8.0);
-
-//    canvas.setFillStyle(0xFF00FF00);
-//    canvas.drawRectFilled(ax, ay, this->collider.w, 20);
+    canvas.drawRect(ax, ay, this->collider.w, this->collider.h, 0);
 
     canvas.setFillStyle(0xFF000000);
     canvas.drawText(this->title.c_str()
             , gui->defaultFont,this->ax+uiStyle.TITLE_TEXT_OFFSET.first,this->ay+uiStyle.TITLE_TEXT_OFFSET.second,100,100);
-    canvas.setFillStyle(0xFFF20202);
+    canvas.setFillStyle(0xFF0000FF);
     canvas.drawCircleFilled(this->ax + this->collider.w - 10.0, ay + 10.0, 5);
-
-    canvas.setFillStyle(0xFF555555);
-    canvas.drawCircleFilled(this->ax + this->collider.w - 25.0, ay + 10.0, 5);
 
     Box::draw(tick);
     drawBound();

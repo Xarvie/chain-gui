@@ -939,7 +939,8 @@ void TextLayout::modifyText(int lineBegin, int lineEnd, int beginPos, int endPos
             insertEndLineStr += lineRightStr;
             it = lineTextList.erase(it++);
 
-            lineTextList.insert(it--, insertText.begin(), insertText.end());
+            lineTextList.insert(it, insertText.begin(), insertText.end());
+            it--;
         } else {
 
             insertText.begin()->lineStr = strBegin + insertText.begin()->lineStr;
@@ -952,7 +953,8 @@ void TextLayout::modifyText(int lineBegin, int lineEnd, int beginPos, int endPos
             insertEndLineStr += lineRightStr;
             it = lineTextList.erase(it++);
 
-            lineTextList.insert(it--, insertText.begin(), insertText.end());
+            lineTextList.insert(it, insertText.begin(), insertText.end());
+            it--;
         }
 
     }
